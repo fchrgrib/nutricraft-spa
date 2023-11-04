@@ -34,16 +34,16 @@ const Navbar = () =>{
         <div className='bg-[#10A5A5] h-full w-full font-sans'>
            <div className="hidden md:flex items-center justify-between">
                 <div className='flex flex-row space-x-9 justify-start items-center font-bold cursor-pointer transform text-xl'>
-                    <a href="/home">
+                    <a href="/">
                         <img src={logo} alt="" className='flex w-[174px] h-[55px] ml-[25px]'/>
                     </a>
-                    <a href="/home">
+                    <a href="/">
                         <button type="button" className="home hover:scale-125">Home</button>
                     </a>
-                    <a href="/meals">
+                    <a href="/forum">
                         <button type="button" className="meals hover:scale-125">Forum</button>
                     </a>
-                    <a href="/fact">
+                    <a href="/Content">
                         <button type="button" className="fact hover:scale-125">Content</button>
                     </a>
                 </div>
