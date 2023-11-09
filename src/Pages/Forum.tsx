@@ -1,19 +1,10 @@
-import {useState} from 'react'
+import {useState, ChangeEvent, FormEvent} from 'react'
+import ReactQuill from 'react-quill';
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
 import PhotoContent from "../assets/contoh.jpg"
-
-const ContainerPost = ()=> {
-    return(
-        <div>
-            <div className="flex items-center justify-center bg-red-100 p-3 mt-0 md:m-6" >
-                <img src={profPic} alt="" className="h-10 mr-3"/>
-                <input name="" className="w-4/5 h-10" placeholder="Create Post"></input>
-            </div>
-        </div>
-    );
-}
+import Modal from "../components/Modal";
 
 const ConstainerContent = () => {
     const [likes, setLikes] = useState(0);
@@ -56,9 +47,6 @@ const ConstainerContent = () => {
                             Comment {comments}
                         </button>
                     </div>
-                    <div className='flex justify-end'>
-                        <span className="text-gray-700">Total Views: {views}</span>
-                    </div>
                 </div>
                 <div className={isComment? "flex" : "hidden"}>
                     <CommentSection/>
@@ -97,16 +85,113 @@ const CommentSection = () => {
     );
 }
 
+const TitleContent = () => {
+    return(
+        <div className='bg-yellow-200 h-full'>
+            <h1>ini buat judul-judul konten</h1>
+        </div>
+    );
+}
+
+const Stats = () => {
+    return(
+        <div className='bg-yellow-200 h-full'>
+            <h1>ini buat statistik User</h1>
+        </div>
+    );
+}
+
 const Forum = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [text, setText] = useState('');
+
+    const handleTextChange = (value:any) => {
+        setText(value);
+    };
+
+    const openModal = () => {
+        setIsModalOpen(true);
+        document.body.style.overflow = "hidden"
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        document.body.style.overflow = "scroll"
+    };
+    
     return (
         <div>
             <Navbar/>
-            <ContainerPost/>
-            <ConstainerContent/>
-            <ConstainerContent/>
-            <ConstainerContent/>
-            <ConstainerContent/>
-            <h1>Forum</h1>
+            <div className='flex'>
+                <div className='hidden md:block w-1/5'>
+                    <Stats/>
+                </div>
+                <div className='w-full md:w-3/5'>
+                <div>
+                    <div className="flex items-center justify-center bg-red-100 p-3 mt-0 md:m-6">
+                        <img src={profPic} alt="" className="h-10 mr-3"/>
+                        <input name="" className="w-4/5 h-10 " placeholder="Create Post" onClick={openModal}></input>
+                        <Modal isOpen={isModalOpen} className="no-scroll"> 
+                            <form className="mt-8 mb-4 flex flex-col justify-between">
+                            <h2 className="text-[30px] font-bold mt-4 md:mt-0">Create Post</h2>
+                                <button
+                                    className="absolute top-2 left-2 text-gray-600 hover:text-gray-800 text-[30px] hidden md:block"
+                                    onClick={closeModal}
+                                >
+                                    &times;
+                                </button>
+                                <div className='mb-8 md:hidden'>
+                                    <button
+                                        className="absolute top-[80px] left-2 text-gray-600 hover:text-gray-800 text-[30px] "
+                                        onClick={closeModal}
+                                    >
+                                        &times;
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="absolute top-[80px] mt-2 right-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8"
+                                    >
+                                        Post
+                                    </button>
+                                </div>
+                                <textarea
+                                    value={text}
+                                    onChange={handleTextChange}
+                                    placeholder="Type something..."
+                                    className='border border-gray-300 p-2 rounded w-full h-32'
+                                />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="mt-2"
+                                />
+                                <div className='flex flex-row gap-3 justify-end'>
+                                    <button
+                                        className="bg-gray-200 text-gray rounded-md hover:bg-gray-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                    >
+                                        Post
+                                    </button>
+                                </div>
+                                
+                                </form>
+                        </Modal>
+                    </div>
+                </div>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
+                </div>
+                <div className='hidden md:block w-1/5'>
+                    <TitleContent/>
+                </div>
+            </div>
         </div>
     )
 }
