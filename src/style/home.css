@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+
+*{
+    font-family: 'Nunito', sans-serif;
+}
+
+@keyframes rotateBackAndForth {
+    0% {
+        transform: rotate(30deg);
+    }
+    100% {
+        transform: rotate(-45deg);
+    }
+}
+
+@keyframes backAndForth {
+    0% {
+        transform: rotate(30deg);
+    }
+    100% {
+        transform: rotate(-45deg);
+    }
+}
+
+.animate-back-and-forth {
+    animation: backAndForth 4s ease infinite alternate;
+}
+
+body {
+    overflow-x: hidden;
+}
