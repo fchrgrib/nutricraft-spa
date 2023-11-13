@@ -1,5 +1,5 @@
-import {useState, ChangeEvent, FormEvent} from 'react'
-import ReactQuill from 'react-quill';
+import {useState, useEffect} from 'react'
+import {BiImageAdd} from 'react-icons/bi'
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
@@ -105,8 +105,8 @@ const Forum = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [text, setText] = useState('');
 
-    const handleTextChange = (value:any) => {
-        setText(value);
+    const handleTextChange = (event: any) => {
+        setText(event.target.value);
     };
 
     const openModal = () => {
@@ -118,9 +118,9 @@ const Forum = () => {
         setIsModalOpen(false);
         document.body.style.overflow = "scroll"
     };
-    
+
     return (
-        <div>
+        <div >
             <Navbar/>
             <div className='flex'>
                 <div className='hidden md:block w-1/5'>
@@ -131,52 +131,68 @@ const Forum = () => {
                     <div className="flex items-center justify-center bg-red-100 p-3 mt-0 md:m-6">
                         <img src={profPic} alt="" className="h-10 mr-3"/>
                         <input name="" className="w-4/5 h-10 " placeholder="Create Post" onClick={openModal}></input>
-                        <Modal isOpen={isModalOpen} className="no-scroll"> 
-                            <form className="mt-8 mb-4 flex flex-col justify-between">
-                            <h2 className="text-[30px] font-bold mt-4 md:mt-0">Create Post</h2>
-                                <button
-                                    className="absolute top-2 left-2 text-gray-600 hover:text-gray-800 text-[30px] hidden md:block"
-                                    onClick={closeModal}
-                                >
-                                    &times;
-                                </button>
-                                <div className='mb-8 md:hidden'>
+                        <Modal isOpen={isModalOpen} className="no-scroll modal"> 
+                            <form className="mb-4 flex flex-col">
+                                <div className='hidden md:flex justify-between'>
                                     <button
-                                        className="absolute top-[80px] left-2 text-gray-600 hover:text-gray-800 text-[30px] "
+                                        className="text-gray-600 hover:text-gray-800 text-[30px] "
                                         onClick={closeModal}
                                     >
                                         &times;
                                     </button>
+                                    <h2 className="text-[30px] font-bold">Create Post</h2>
+                                    <div></div>
+                                </div>
+                                
+                                <div className='mb-8 flex justify-between items-center md:hidden'>
+                                    <button
+                                        className='text-gray-600 hover:text-gray-800 text-[30px]'
+                                        onClick={closeModal}
+                                    >
+                                        &times;
+                                    </button>
+                                    <h2 className="text-[30px] font-bold">Create Post</h2>
                                     <button
                                         type="submit"
-                                        className="absolute top-[80px] mt-2 right-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8"
+                                        className='bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8'
                                     >
                                         Post
                                     </button>
+                                </div>
+                                <div className='hidden md:flex flex-row items-center'>
+                                    <img src={profPic} alt="" className="h-10 mr-3"/>
+                                    <p>NAME</p>
                                 </div>
                                 <textarea
                                     value={text}
                                     onChange={handleTextChange}
                                     placeholder="Type something..."
-                                    className='border border-gray-300 p-2 rounded w-full h-32'
+                                    className='border border-gray-300 p-2 rounded w-full h-44 mt-4'
                                 />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="mt-2"
-                                />
-                                <div className='flex flex-row gap-3 justify-end'>
-                                    <button
-                                        className="bg-gray-200 text-gray rounded-md hover:bg-gray-600 transition duration-200 w-16 h-8 self-end hidden md:block"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
-                                    >
-                                        Post
-                                    </button>
+                                
+                                <div className='flex flex-row gap-3 justify-between mt-4'>
+                                    <label htmlFor="fileInput" className='mt-2 text-[30px] cursor-pointer transition-transform transform hover:scale-110'>
+                                        <BiImageAdd/>
+                                    </label>
+                                    <input
+                                        id="fileInput"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                    <div className='flex flex-row gap-3'>
+                                        <button
+                                            className="bg-gray-200 text-gray rounded-md hover:bg-gray-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                        >
+                                            Post
+                                        </button>
+                                    </div>
                                 </div>
                                 
                                 </form>

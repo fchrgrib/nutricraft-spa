@@ -10,8 +10,8 @@ function Modal({ isOpen, children }:any) {
           {children}
         </div>
       </div>
-      <div className='hidden md:block'>
-        <div className="relative max-w-md p-4 m-4 bg-white shadow-lg">
+      <div className='hidden md:flex w-screen items-center justify-center'>
+        <div className="relative w-2/5 p-4 m-4 bg-white shadow-lg h-[50vh]">
           {children}
         </div>
       </div>
