@@ -15,9 +15,9 @@
 
 .header h2,
 .header h5,
-.logincontainer h4,
-.logincontainer h5,
-.logincontainer img {
+.registercontainer h4,
+.registercontainer h5,
+.registercontainer img {
     margin: 0;
     padding: 0;
 }
@@ -25,7 +25,7 @@
 .header img{
     margin-top: 40px;
 }
-.logincontainer{
+.registercontainer{
     background-color: #FFFFFF;
     /* color: White; */
     /* transform: translate(-50%, -50%); */
@@ -80,6 +80,49 @@
     margin-bottom: 5px;
 }
 
+.namecontainer{
+    border: 1px solid #000000;
+    width: 300px;
+    border-radius: 10px;
+    transition: border-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 15px;
+}
+
+.namecontainer:hover{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.namecontainer:focus-within{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.namecontainer i{
+    margin-left: 5px;
+    margin-top: 5px;
+    color: #000000;
+}
+
+.nameinput{
+    border: none;
+    width: 250px;
+    height: 20px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    font-size: 20px;
+    outline: none; 
+    transition: border-color 0.3s ease-in-out;
+    font-size: 14px;
+}
+
+.nameinput::placeholder {
+    font-size: 14px; /* Adjust the font size to your preference */
+}
+
+
 .emailcontainer{
     border: 1px solid #000000;
     width: 300px;
@@ -119,6 +162,90 @@
 }
 
 .emailinput::placeholder {
+    font-size: 14px; /* Adjust the font size to your preference */
+}
+
+.titlecontainer{
+    border: 1px solid #000000;
+    width: 300px;
+    border-radius: 10px;
+    transition: border-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 15px;
+}
+
+.titlecontainer:hover{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.titlecontainer:focus-within{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.titlecontainer i{
+    margin-left: 5px;
+    margin-top: 5px;
+    color: #000000;
+}
+
+.titleinput{
+    border: none;
+    width: 250px;
+    height: 20px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    font-size: 20px;
+    outline: none; 
+    transition: border-color 0.3s ease-in-out;
+    font-size: 14px;
+}
+
+.titleinput::placeholder {
+    font-size: 14px; /* Adjust the font size to your preference */
+}
+
+.desccontainer{
+    border: 1px solid #000000;
+    width: 300px;
+    border-radius: 10px;
+    transition: border-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 15px;
+}
+
+.desccontainer:hover{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.desccontainer:focus-within{
+    border: 1px solid #288990;
+    transform: scale(1.001); /* Slightly scale up on hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a subtle shadow on hover */
+}
+
+.desccontainer i{
+    margin-left: 5px;
+    margin-top: 5px;
+    color: #000000;
+}
+
+.descinput{
+    border: none;
+    width: 270px;
+    height: 20px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    font-size: 20px;
+    outline: none; 
+    transition: border-color 0.3s ease-in-out;
+    font-size: 14px;
+}
+
+.descinput::placeholder {
     font-size: 14px; /* Adjust the font size to your preference */
 }
 
