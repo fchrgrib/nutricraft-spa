@@ -6,16 +6,56 @@ import Navbar from "../components/Navbar";
 import PhotoContent from "../assets/contoh.jpg"
 import Modal from "../components/Modal";
 
+
 const ConstainerContent = () => {
     const [likes, setLikes] = useState(0);
+    const [commentsCount, setCommentsCount] = useState(3);
     const [isLike, setIsLike] = useState(false);
-    const [comments, setComments] = useState(0);
     const [isComment, setIsComment] = useState(false);
     const [views, setViews] = useState(0);
-
+    const [comments, setComments] = useState(["Coment 1","Koment 2","Koment 3"]);
+    
     const handleLike = () => {
         setIsLike(!isLike);
         isLike? setLikes(likes-1) : setLikes(likes+1);
+    }
+    
+    const handleComment = () => {
+        setIsComment(!isComment);
+    }
+    
+    const CommentSection = () => {
+        const [newComment, setNewComment] = useState("")
+        
+        const handleSubmit = (e: any) => {
+            e.preventDefault();
+            setComments([...comments, newComment]);
+            setCommentsCount(commentsCount+1);
+            setNewComment("");
+        }
+    
+        return (
+            <div className="mt-4">
+                <h1 className="font-bold text-lg">Comments</h1>
+                {/* <form className="mt-2"> */}
+                    <input 
+                        type="text" 
+                        value={newComment} 
+                        onChange={(e) => setNewComment(e.target.value)} 
+                        className="border border-gray-300 p-2 rounded w-full"
+                        placeholder="Write a comment..."
+                    />
+                    <button className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleSubmit}>
+                        Submit
+                    </button>
+                {/* </form> */}
+                <div className="mt-4">
+                    {comments.map((comment, index) => (
+                        <p key={index} className="border-b border-gray-300 py-2">{comment}</p>
+                    ))}
+                </div>
+            </div>
+        );
     }
 
     return(
@@ -43,8 +83,8 @@ const ConstainerContent = () => {
                         <button onClick={handleLike} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Like {likes}
                         </button>
-                        <button onClick= {()=>setIsComment(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Comment {comments}
+                        <button onClick= {handleComment} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Comment {commentsCount}
                         </button>
                     </div>
                 </div>
@@ -56,34 +96,6 @@ const ConstainerContent = () => {
     );
 }
 
-const CommentSection = () => {
-    const [comments, setComments] = useState(["Coment 1","Koment 2","Koment 3"]);
-    const [newComment, setNewComment] = useState('');
-
-
-    return (
-        <div className="mt-4">
-            <h1 className="font-bold text-lg">Comments</h1>
-            <form className="mt-2">
-                <input 
-                    type="text" 
-                    value={newComment} 
-                    onChange={(e) => setNewComment(e.target.value)} 
-                    className="border border-gray-300 p-2 rounded w-full"
-                    placeholder="Write a comment..."
-                />
-                <button type="submit" className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Submit
-                </button>
-            </form>
-            <div className="mt-4">
-                {comments.map((comment, index) => (
-                    <p key={index} className="border-b border-gray-300 py-2">{comment}</p>
-                ))}
-            </div>
-        </div>
-    );
-}
 
 const TitleContent = () => {
     return(
