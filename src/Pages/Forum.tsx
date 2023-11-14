@@ -1,5 +1,7 @@
 import {useState, useEffect} from 'react'
 import {BiImageAdd} from 'react-icons/bi'
+import like from '../assets/like.png'
+import comment from '../assets/comment.png'
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
@@ -12,8 +14,11 @@ const ConstainerContent = () => {
     const [commentsCount, setCommentsCount] = useState(3);
     const [isLike, setIsLike] = useState(false);
     const [isComment, setIsComment] = useState(false);
-    const [views, setViews] = useState(0);
-    const [comments, setComments] = useState(["Coment 1","Koment 2","Koment 3"]);
+    const [comments, setComments] = useState([
+        { user: "User1", comment: "Comment 1" },
+        { user: "User2", comment: "Comment 2" },
+        { user: "User3", comment: "Comment 3" },
+      ]);
     
     const handleLike = () => {
         setIsLike(!isLike);
@@ -25,14 +30,16 @@ const ConstainerContent = () => {
     }
     
     const CommentSection = () => {
-        const [newComment, setNewComment] = useState("")
+        const [newComment, setNewComment] = useState("");
+        const [newCommentUser, setNewCommentUser] = useState("NewUser");
         
         const handleSubmit = (e: any) => {
             e.preventDefault();
-            setComments([...comments, newComment]);
+            const newCommentObject = { user: newCommentUser, comment: newComment };
+            setComments([...comments, newCommentObject]);
             setCommentsCount(commentsCount+1);
             setNewComment("");
-        }
+          };
     
         return (
             <div className="mt-4">
@@ -51,7 +58,12 @@ const ConstainerContent = () => {
                 {/* </form> */}
                 <div className="mt-4">
                     {comments.map((comment, index) => (
-                        <p key={index} className="border-b border-gray-300 py-2">{comment}</p>
+                    <div key={index} className="border-b border-gray-300 py-2">
+                        <p>
+                        <span className="font-bold">{comment.user}: </span>
+                        {comment.comment}
+                        </p>
+                    </div>
                     ))}
                 </div>
             </div>
@@ -60,7 +72,7 @@ const ConstainerContent = () => {
 
     return(
         <div>
-            <div className="flex flex-col bg-blue-200 p-3 my-4 md:m-6 md:my-8" >
+            <div className="flex flex-col justify-center bg-white rounded-md shadow-md p-4 m-4" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.4)' }}>
                 <div className="flex flex-row items-center justify-start">
                     <img src={profPic} alt="" className="h-10 mr-3"/>
                     <div className="flex flex-col items-start">
@@ -79,12 +91,14 @@ const ConstainerContent = () => {
                     </div>
                 </div>
                 <div className='flex items-center justify-between my-3'>
-                    <div className='flex justify-start gap-2'>
-                        <button onClick={handleLike} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Like {likes}
+                    <div className='flex justify-start gap-4 items-center mt-2'>
+                        <button onClick={handleLike} className="flex items-center">
+                            <img src={like} alt="" className="w-8 h-8" />
+                            <span className="text-sm font-semibold  text-gray-600 mt-1 ml-2">{likes}</span>
                         </button>
-                        <button onClick= {handleComment} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Comment {commentsCount}
+                        <button onClick={handleComment} className="flex items-center">
+                            <img src={comment} alt="" className="w-8 h-8" />
+                            <span className="text-sm font-semibold text-gray-600 mt-1 ml-2">{commentsCount}</span>
                         </button>
                     </div>
                 </div>
@@ -99,16 +113,62 @@ const ConstainerContent = () => {
 
 const TitleContent = () => {
     return(
-        <div className='bg-yellow-200 h-full'>
-            <h1>ini buat judul-judul konten</h1>
+        <div className='trendingpost bg-[#fffcf1] h-full'>
+            <div className='flex flex-col justify-center items-center'>
+                <p className='font-bold text-xl mt-5'>Trending Posts</p>
+                <div className='flex flex-col gap-4 justify-center items-center mt-5'>
+                    <div className='flex flex-row justify-center items-center'>
+                        <p className='font-bold text-xl mr-5 mt-0.5'>1</p>
+                        <img src={profPic} alt="" className='h-8 mr-3'/>
+                        <p className='font-bold text-xl mt-1'>Title</p>
+                    </div>
+                    <div className='flex flex-row justify-center items-center'>
+                        {/* number */}
+                        <p className='font-bold text-xl mr-5 mt-0.5'>2</p>
+                        <img src={profPic} alt="" className='h-8 mr-3'/>
+                        <p className='font-bold text-xl mt-1'>Title</p>
+                    </div>
+                    <div className='flex flex-row justify-center items-center'>
+                    <p className='font-bold text-xl mr-5 mt-0.5'>3</p>
+                        <img src={profPic} alt="" className='h-8 mr-3'/>
+                        <p className='font-bold text-xl mt-1'>Title</p>
+                    </div>
+                    <div className='flex flex-row justify-center items-center'>
+                    <p className='font-bold text-xl mr-5 mt-0.5'>4</p>
+                        <img src={profPic} alt="" className='h-8 mr-3'/>
+                        <p className='font-bold text-xl mt-1'>Title</p>
+                    </div>
+                    <div className='flex flex-row justify-center items-center'>
+                    <p className='font-bold text-xl mr-5 mt-0.5'>5</p>
+                        <img src={profPic} alt="" className='h-8 mr-3'/>
+                        <p className='font-bold text-xl mt-1 '>Title</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
 
 const Stats = () => {
     return(
-        <div className='bg-yellow-200 h-full'>
-            <h1>ini buat statistik User</h1>
+        <div className='profilecontainer pt-10 bg-[#fffcf1] h-full'>
+            <div className='flex flex-col justify-center items-center'>
+                <img src={profPic} alt="" className='h-32 mt-10'/>
+                <p className='font-bold text-xl mt-5'>Username</p>
+            </div>
+            <div className='flex flex-col justify-center items-center mt-10'>
+                <p className='font-bold text-xl'>Stats</p>
+                <div className='flex flex-row justify-center items-center mt-5'>
+                    <div className='flex flex-col justify-center items-center'>
+                        <p className='font-bold text-xl'>0</p>
+                        <p className='font-bold text-xl'>Posts</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center ml-10'>
+                        <p className='font-bold text-xl'>0</p>
+                        <p className='font-bold text-xl'>Likes</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
@@ -134,17 +194,16 @@ const Forum = () => {
     return (
         <div >
             <Navbar/>
-            <div className='flex'>
+            <div className='flex overflow-hidden' style={{ height: 'calc(100vh - 115px)' }}>
                 <div className='hidden md:block w-1/5'>
                     <Stats/>
                 </div>
-                <div className='w-full md:w-3/5'>
+                <div className=' md:w-3/5 overflow-y-auto'>
                 <div>
-                    <div className="flex items-center justify-center bg-red-100 p-3 mt-0 md:m-6">
+                    <div className="flex items-center flex-start border border-[#EF4800] rounded-[20px] p-3 mt-4 mr-5 ml-5 md:m-6 hover:border-[aqua]">
                         <img src={profPic} alt="" className="h-10 mr-3"/>
-                        <input name="" className="w-4/5 h-10 " placeholder="Create Post" onClick={openModal}></input>
+                        <button name="" className="w-4/5 h-10 outline-none text-left "  onClick={openModal}>Create Post</button>
                         <Modal isOpen={isModalOpen} className="no-scroll modal"> 
-                            <form className="mb-4 flex flex-col">
                                 <div className='hidden md:flex justify-between'>
                                     <button
                                         className="text-gray-600 hover:text-gray-800 text-[30px] "
@@ -182,7 +241,7 @@ const Forum = () => {
                                     className='border border-gray-300 p-2 rounded w-full h-44 mt-4'
                                 />
                                 
-                                <div className='flex flex-row gap-3 justify-between mt-4'>
+                                <div className='flex flex-row gap-3 justify-between mt-4 mb-10'>
                                     <label htmlFor="fileInput" className='mt-2 text-[30px] cursor-pointer transition-transform transform hover:scale-110'>
                                         <BiImageAdd/>
                                     </label>
@@ -192,14 +251,14 @@ const Forum = () => {
                                         accept="image/*"
                                         className="hidden"
                                     />
-                                    <div className='flex flex-row gap-3'>
+                                    <div className='flex flex-row gap-3 mb-10'>
                                         <button
                                             className="bg-gray-200 text-gray rounded-md hover:bg-gray-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                            onClick={closeModal}
                                         >
                                             Cancel
                                         </button>
                                         <button
-                                            type="submit"
                                             className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
                                         >
                                             Post
@@ -207,7 +266,6 @@ const Forum = () => {
                                     </div>
                                 </div>
                                 
-                                </form>
                         </Modal>
                     </div>
                 </div>
