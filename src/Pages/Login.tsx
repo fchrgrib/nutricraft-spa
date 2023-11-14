@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "../style/login.css";
 import logo from "../assets/NutriCraft.svg";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import axios from "axios";
 
 interface LoginData {
     emailLog: string;
@@ -9,6 +10,10 @@ interface LoginData {
 }
 
 const Login = () => {
+
+    const url = 'http://localhost:8080'
+    const navigate = useNavigate()
+
     const [loginData, setLoginData] = useState<LoginData>({
         emailLog: "",
         passLog: "",
@@ -22,9 +27,37 @@ const Login = () => {
         }));
     };
 
-    const handleLogin = () => {
-        // axios
-        console.log(loginData);
+    const handleLogin = async () => {
+        if(!loginData.emailLog){
+            //TODO: notify user
+            console.log('email doesnt fill anything')
+            return
+        }
+        if (!loginData.passLog){
+            //TODO: notify user
+            console.log('password doesnt fill anything')
+            return
+        }
+
+        try {
+            const isLoginSuccess = await axios.post(`${url}/login`,{
+                email:loginData.emailLog,
+                password:loginData.passLog
+            })
+
+            if (isLoginSuccess.status<400){
+                console.log('user successfully login')
+                navigate('/', {
+                    replace: true
+                })
+                return
+            }
+
+            console.log('user failed to login')
+            return
+        }catch (e: any) {
+            console.log(e.response.data.status)
+        }
     };
 
     return (
