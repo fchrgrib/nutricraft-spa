@@ -27,10 +27,10 @@ const Card = () => {
         closeConfirmationBox();
     };
 
-    
+
 
     return (
-        <div className="contentcard flex flex-col p-5 justify-center items-center border border-[#EF4800] border-[1px] rounded-xl shadow-md hover:border-[aqua] transition duration-300">
+        <div className="contentcard flex flex-col p-5 justify-center items-center border-[#EF4800] border-[1px] rounded-xl shadow-md hover:border-[aqua] transition duration-300">
             <div className="contentcardheader flex flex-row justify-between items-center">
                 <h1 className="font-bold text-2xl">TitleContent</h1>
             </div>
@@ -42,10 +42,10 @@ const Card = () => {
                     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptas.</p>
                 </div>
                 <div className="contentcardbutton flex flex-col gap-5">
-                    <Link to="/editcontent">
+                    <Link to="/content/1">
                     <button className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md">Edit</button>
                     </Link>
-                    <button className=" border border-[#EF4800] border-[1px] rounded-[30px] w-[120px] h-[30px] text-[red] text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[red] hover:text-[#FFFFFF] transform scale-110 shadow-md" onClick={openConfirmationBox}>Delete</button>
+                    <button className=" border-[#EF4800] border-[1px] rounded-[30px] w-[120px] h-[30px] text-[red] text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[red] hover:text-[#FFFFFF] transform scale-110 shadow-md" onClick={openConfirmationBox}>Delete</button>
                 </div>
 
             </div>

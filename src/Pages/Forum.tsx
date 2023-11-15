@@ -3,6 +3,7 @@ import {BiImageAdd} from 'react-icons/bi'
 import like from '../assets/like.png'
 import comment from '../assets/comment.png'
 import Cookies from "js-cookie";
+import "../style/forum.css"
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
@@ -120,39 +121,29 @@ const ConstainerContent = () => {
     );
 }
 
+const Toptitle = () => {
+    const [posts, setPosts] = useState([]);
+    
+
+    return (
+        <div className='flex flex-row items-center'>
+                        <p className='font-bold text-lg mr-5 mt-0.5'>1</p>
+                        <p className='font-bold text-lg mt-1'>Title</p>
+        </div>
+    );
+    }
+
+
+
 
 const TitleContent = () => {
     return(
         <div className='trendingpost bg-[#fffcf1] h-full'>
-            <div className='flex flex-col justify-center items-center'>
+            <div className='flex flex-col justify-center items-center pl-5 w-full'>
                 <p className='font-bold text-xl mt-5'>Trending Posts</p>
-                <div className='flex flex-col gap-4 justify-center items-center mt-5'>
-                    <div className='flex flex-row justify-center items-center'>
-                        <p className='font-bold text-xl mr-5 mt-0.5'>1</p>
-                        <img src={profPic} alt="" className='h-8 mr-3'/>
-                        <p className='font-bold text-xl mt-1'>Title</p>
-                    </div>
-                    <div className='flex flex-row justify-center items-center'>
-                        {/* number */}
-                        <p className='font-bold text-xl mr-5 mt-0.5'>2</p>
-                        <img src={profPic} alt="" className='h-8 mr-3'/>
-                        <p className='font-bold text-xl mt-1'>Title</p>
-                    </div>
-                    <div className='flex flex-row justify-center items-center'>
-                    <p className='font-bold text-xl mr-5 mt-0.5'>3</p>
-                        <img src={profPic} alt="" className='h-8 mr-3'/>
-                        <p className='font-bold text-xl mt-1'>Title</p>
-                    </div>
-                    <div className='flex flex-row justify-center items-center'>
-                    <p className='font-bold text-xl mr-5 mt-0.5'>4</p>
-                        <img src={profPic} alt="" className='h-8 mr-3'/>
-                        <p className='font-bold text-xl mt-1'>Title</p>
-                    </div>
-                    <div className='flex flex-row justify-center items-center'>
-                    <p className='font-bold text-xl mr-5 mt-0.5'>5</p>
-                        <img src={profPic} alt="" className='h-8 mr-3'/>
-                        <p className='font-bold text-xl mt-1 '>Title</p>
-                    </div>
+                <div className='flex flex-col gap-4 justify-start mt-5 w-full'>
+                    <Toptitle/>
+                    <Toptitle/>
                 </div>
             </div>
         </div>
@@ -163,7 +154,7 @@ const Stats: React.FC<any> = ({userName, profPic, post, like}) => {
     return(
         <div className='profilecontainer pt-10 bg-[#fffcf1] h-full'>
             <div className='flex flex-col justify-center items-center'>
-                <img src={profPic} alt="" className='h-32 mt-10'/>
+                <img src="https://picsum.photos/200/300" alt="" className=' mt-10 rounded-full w-[100px] h-[100px]'/>
                 <p className='font-bold text-xl mt-5'>{userName}</p>
             </div>
             <div className='flex flex-col justify-center items-center mt-10'>
@@ -233,9 +224,9 @@ const Forum = () => {
                 <div className='hidden md:block w-1/5'>
                     <Stats userName={(userInfo)?userInfo.name:''} profPic={(photoProfile)?photoProfile:profPic} post={0} like={0}/>
                 </div>
-                <div className=' md:w-3/5 overflow-y-auto'>
-                <div>
-                    <div className="flex items-center flex-start border border-[#EF4800] rounded-[20px] p-3 mt-4 mr-5 ml-5 md:m-6 hover:border-[aqua]">
+                <div className=' md:w-3/5 overflow-y-auto scrollbar-thin '>
+                <div className='mr-5 ml-5'>
+                    <div className="flex items-center flex-start border border-[#EF4800] rounded-[20px] p-3 m-4 md:m-4 hover:border-[aqua]">
                         <img src={profPic} alt="" className="h-10 mr-3"/>
                         <button name="" className="w-4/5 h-10 outline-none text-left "  onClick={openModal}>Create Post</button>
                         <Modal isOpen={isModalOpen} className="no-scroll modal"> 
@@ -303,11 +294,11 @@ const Forum = () => {
                                 
                         </Modal>
                     </div>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
+                    <ConstainerContent/>
                 </div>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
                 </div>
                 <div className='hidden md:block w-1/5'>
                     <TitleContent/>
