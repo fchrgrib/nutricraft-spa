@@ -16,7 +16,7 @@ interface RegisterData {
 const Register = () => {
 
     // TODO: Change this is you want to deploy in docker as your container name
-    const url = 'http://localhost:8080'
+    const url = process.env.URL||'http://localhost:8080'
     const navigate = useNavigate()
 
     const [registerData, setRegisterData] = useState<RegisterData>({

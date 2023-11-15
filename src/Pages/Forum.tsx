@@ -1,12 +1,22 @@
-import {useState, useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import {BiImageAdd} from 'react-icons/bi'
 import like from '../assets/like.png'
 import comment from '../assets/comment.png'
+import Cookies from "js-cookie";
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
 import PhotoContent from "../assets/contoh.jpg"
 import Modal from "../components/Modal";
+import axios from "axios";
+import {jwtDecode} from "jwt-decode";
+
+interface userJwt{
+    uuid: string
+    name: string
+    email: string
+    iat: number
+}
 
 
 const ConstainerContent = () => {
@@ -149,22 +159,22 @@ const TitleContent = () => {
     );
 }
 
-const Stats = () => {
+const Stats: React.FC<any> = ({userName, profPic, post, like}) => {
     return(
         <div className='profilecontainer pt-10 bg-[#fffcf1] h-full'>
             <div className='flex flex-col justify-center items-center'>
                 <img src={profPic} alt="" className='h-32 mt-10'/>
-                <p className='font-bold text-xl mt-5'>Username</p>
+                <p className='font-bold text-xl mt-5'>{userName}</p>
             </div>
             <div className='flex flex-col justify-center items-center mt-10'>
                 <p className='font-bold text-xl'>Stats</p>
                 <div className='flex flex-row justify-center items-center mt-5'>
                     <div className='flex flex-col justify-center items-center'>
-                        <p className='font-bold text-xl'>0</p>
+                        <p className='font-bold text-xl'>{post}</p>
                         <p className='font-bold text-xl'>Posts</p>
                     </div>
                     <div className='flex flex-col justify-center items-center ml-10'>
-                        <p className='font-bold text-xl'>0</p>
+                        <p className='font-bold text-xl'>{like}</p>
                         <p className='font-bold text-xl'>Likes</p>
                     </div>
                 </div>
@@ -176,6 +186,31 @@ const Stats = () => {
 const Forum = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [text, setText] = useState('');
+    const [userInfo, setUserInfo] = useState<userJwt|null>(null)
+    const [photoProfile, setPhotoProfile] = useState('')
+    const _tempToken = Cookies.get('token')
+    const host = process.env.URL||'http://localhost:8080'
+
+    const urlPhoto = async (uuid:string)=>{
+        return await axios.get(`${host}/image/profile/${uuid}`)
+            .then(response => {
+                setPhotoProfile(response.data.url)
+            }).catch(e => {
+                console.log(e)
+            })
+    }
+
+    useEffect(() => {
+        if (_tempToken) {
+            setUserInfo(jwtDecode(_tempToken));
+        }
+    }, [_tempToken]);
+
+    useEffect(() => {
+        if (userInfo && userInfo.uuid) {
+            urlPhoto(userInfo.uuid);
+        }
+    }, [userInfo]);
 
     const handleTextChange = (event: any) => {
         setText(event.target.value);
@@ -196,7 +231,7 @@ const Forum = () => {
             <Navbar/>
             <div className='flex overflow-hidden' style={{ height: 'calc(100vh - 115px)' }}>
                 <div className='hidden md:block w-1/5'>
-                    <Stats/>
+                    <Stats userName={(userInfo)?userInfo.name:''} profPic={(photoProfile)?photoProfile:profPic} post={0} like={0}/>
                 </div>
                 <div className=' md:w-3/5 overflow-y-auto'>
                 <div>

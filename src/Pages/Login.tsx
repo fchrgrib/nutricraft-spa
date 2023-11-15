@@ -11,7 +11,7 @@ interface LoginData {
 
 const Login = () => {
 
-    const url = 'http://localhost:8080'
+    const url = process.env.URL||'http://localhost:8080'
     const navigate = useNavigate()
 
     const [loginData, setLoginData] = useState<LoginData>({
@@ -43,6 +43,8 @@ const Login = () => {
             const isLoginSuccess = await axios.post(`${url}/login`,{
                 email:loginData.emailLog,
                 password:loginData.passLog
+            },{
+                withCredentials: true
             })
 
             if (isLoginSuccess.status<400){
