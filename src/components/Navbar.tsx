@@ -4,6 +4,15 @@
     import defaultPict from "../assets/default.svg"
     import { Link } from 'react-router-dom';
     import Cookies from 'js-cookie';
+    import {jwtDecode} from 'jwt-decode';
+    import lodash from 'lodash';
+
+    interface userJwt{
+        uuid: string
+        name: string
+        email: string
+        iat: number
+    }
 
     const Navbar = () =>{
         const [nav, setNav] = useState(false);
@@ -12,6 +21,7 @@
         const [open, setOpen] = useState(false);
         const [admin, setAdmin] = useState(false);
         const [loggedIn, setLoggedIn] = useState(false);
+        const [userInfo, setUserInfo] = useState<userJwt|null>(null)
 
         const handleNav = () => {
             setNav(!nav);
@@ -29,13 +39,23 @@
             }
         }
 
+
         useEffect(() => {
             const token = Cookies.get('token');
             if (token) {
                 setLoggedIn(true);
-                setTextLogin('Profile');
+                setUserInfo(jwtDecode(token));
             }
         }, []);
+
+        useEffect(() => {
+            console.log(userInfo?.name)
+            if (userInfo && userInfo.name) {
+                setTextLogin(userInfo.name);
+            }
+        }, [userInfo]);
+
+        const truncatedText = lodash.truncate(textLogin, { length: 17 });
 
         window.addEventListener('resize', checkNavbar);
 
@@ -61,7 +81,7 @@
                     </div>
                     <div className='flex flex-row justify-end items-center'>
                         <div onMouseLeave={() => setOpen(false)} className="relative">
-                            <button onMouseOver={() => setOpen(true)} className="meals bg-[#FF6B00] border-none rounded-2xl w-[154px] h-[35px] text-white cursor-pointer hover:bg-[#ff6a00cc]">{textLogin}</button>
+                            <button onMouseOver={() => setOpen(true)} className="meals bg-[#FF6B00] border-none rounded-2xl w-[154px] h-[35px] text-white font-bold cursor-pointer hover:bg-[#ff6a00cc]">{truncatedText}</button>
                             <ul className={`absolute right-0 w-40 drop-shadow-lg ${open&&login ? "block" : "hidden"}`}>
                                 <Link to="/profile">
                                     <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Profile</li>
@@ -100,7 +120,7 @@
                     {loggedIn ? (
                     <div className='flex items-center'>
                         <div onMouseLeave={() => setOpen(false)} className="relative">
-                            <button onMouseOver={() => setOpen(true)} className="meals bg-[#FF6B00] border-none rounded-2xl w-[154px] h-[35px] text-white cursor-pointer hover:bg-[#ff6a00cc]">{textLogin}</button>
+                            <button onMouseOver={() => setOpen(true)} className="meals bg-[#FF6B00] border-none rounded-2xl w-[154px] h-[35px] text-white cursor-pointer hover:bg-[#ff6a00cc]">{truncatedText}</button>
                             <ul className={`absolute right-0 w-40 drop-shadow-lg ${open&&login ? "block" : "hidden"}`}>
                                 <Link to="/profile">
                                     <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Profile</li>
