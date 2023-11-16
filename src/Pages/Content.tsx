@@ -1,13 +1,19 @@
 
 import Navbar from "../components/Navbar";
+import Modal from "../components/Modal";
 import React from 'react';
+import {BiImageAdd} from 'react-icons/bi'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom';
 import { useState } from "react";
 
 
-
+interface ContentData {
+    title: string;
+    highlight: string;
+    description: string;
+}
 
 const Card = () => {
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -88,6 +94,46 @@ const Card = () => {
 
 
 const Content = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [contentData, setContentData] = useState<ContentData>({
+        title: "",
+        highlight: "",
+        description: "",
+    });
+
+    const openModal = () => {
+        setIsModalOpen(true);
+        document.body.style.overflow = "hidden"
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        document.body.style.overflow = "scroll"
+    };
+
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setContentData({
+            ...contentData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setContentData({
+            ...contentData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files && e.target.files[0];
+        if (selectedFile) {
+          alert('Selected file: ' + selectedFile.name);
+          // You can perform additional actions with the selected file
+          console.log(selectedFile);
+        }
+      };
+
     return (
         <div>
             <Navbar/>
@@ -95,12 +141,76 @@ const Content = () => {
                 <div className="contentheader flex flex-col justify-center items-center mt-10">
                     <h1 className="font-semibold text-3xl">Content</h1>
                     <div className="searchBar flex items-center mt-5 ml-10 p-2 rounded-full border border-gray-300 focus-within:ring focus-within:border-blue-500">
-                        <FontAwesomeIcon icon={faSearch} className="searchIcon mr-2" />
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            className="searchInput outline-none bg-transparent focus:outline-none"
-                        />
+                    <button name="" className="w-4/5 h-10 outline-none text-left "  onClick={openModal}>Create Content</button>
+                        <Modal isOpen={isModalOpen} className="no-scroll modal"> 
+                                <div className='hidden md:flex justify-between'>
+                                    <button
+                                        className="text-gray-600 hover:text-gray-800 text-[30px] "
+                                        onClick={closeModal}
+                                    >
+                                        &times;
+                                    </button>
+                                    <h2 className="text-[30px] font-bold">Create Post</h2>
+                                    <div></div>
+                                </div>
+                                
+                                <div className='mb-8 flex justify-between items-center md:hidden'>
+                                    <button
+                                        className='text-gray-600 hover:text-gray-800 text-[30px]'
+                                        onClick={closeModal}
+                                    >
+                                        &times;
+                                    </button>
+                                    <h2 className="text-[30px] font-bold">Create Post</h2>
+                                    <button
+                                        type="submit"
+                                        className='bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8'
+                                    >
+                                        Post
+                                    </button>
+                                </div>
+                                <div className='hidden md:flex flex-col items-start'>
+                                    <h2 className="text-[20px] font-bold">Title</h2>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." value={contentData.title} onChange={handleChange}/>
+                                </div>
+                                <div className='hidden md:flex flex-col items-start'>
+                                    <h2 className="text-[20px] font-bold">Highlight</h2>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." value={contentData.highlight} onChange={handleChange}/>
+                                </div>
+                                <h2 className="text-[20px] font-bold mt-4">Description</h2>
+                                <textarea
+                                    value={contentData.description}
+                                    onChange={handleTextChange}
+                                    placeholder="Type something..."
+                                    className='border border-gray-300 p-2 rounded w-full h-44 mt-4 max-h-[80px] min-h-[30px]'
+                                />
+                                <div className='flex flex-row gap-3 justify-between mt-4 mb-10'>
+                                    <label htmlFor="fileInput" className='mt-2 text-[30px] cursor-pointer transition-transform transform hover:scale-110'>
+                                        <BiImageAdd/>
+                                    </label>
+                                    <input
+                                        id="fileInput"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        name="Image"
+                                        onChange={handleFileSelect}
+                                    />
+                                    <div className='flex flex-row gap-3 mb-10'>
+                                        <button
+                                            className="bg-gray-200 text-gray rounded-md hover:bg-gray-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                            onClick={closeModal}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                        >
+                                            Post
+                                        </button>
+                                    </div>
+                                </div>
+                        </Modal>
                     </div>
                 </div>
                 <div className="contentbody flex flex-col justify-center items-center mt-10 gap-8">
