@@ -409,15 +409,16 @@ const Forum = () => {
                                         Post
                                     </button>
                                 </div>
-                                <div className='hidden md:flex flex-row items-center'>
-                                    <img src={profPic} alt="" className="h-10 mr-3"/>
-                                    <p>NAME</p>
+                                <div className='hidden md:flex flex-col items-start'>
+                                    <h2 className="text-[20px] font-bold">Title</h2>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..."/>
                                 </div>
+                                <h2 className="text-[20px] font-bold mt-4">Body</h2>
                                 <textarea
                                     value={text}
                                     onChange={handleTextChange}
                                     placeholder="Type something..."
-                                    className='border border-gray-300 p-2 rounded w-full h-44 mt-4'
+                                    className='border border-gray-300 p-2 rounded w-full h-44 mt-4 max-h-[80px] min-h-[30px]'
                                 />
                                 
                                 <div className='flex flex-row gap-3 justify-between mt-4 mb-10'>
@@ -453,7 +454,7 @@ const Forum = () => {
                 </div>
                 </div>
                 <div className='hidden md:block w-1/5'>
-                    <TitleContent/>
+                    {/* <TitleContent/> */}
                 </div>
             </div>
         </div>
