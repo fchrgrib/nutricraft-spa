@@ -3,6 +3,7 @@ import "../style/login.css";
 import logo from "../assets/NutriCraft.svg";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
+import useToast from "../hooks/useToast";
 
 interface LoginData {
     emailLog: string;
@@ -13,6 +14,7 @@ const Login = () => {
 
     const url = process.env.URL||'http://localhost:8080'
     const navigate = useNavigate()
+    const {showToast} = useToast()
 
     const [loginData, setLoginData] = useState<LoginData>({
         emailLog: "",
@@ -49,6 +51,8 @@ const Login = () => {
 
             if (isLoginSuccess.status<400){
                 console.log('user successfully login')
+                    // Perform login operation here
+                    showToast('Login success', 'success')
                 navigate('/', {
                     replace: true
                 })

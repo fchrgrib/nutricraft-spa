@@ -8,10 +8,12 @@ import Register from './Pages/Register';
 import Home from './Pages/Home';
 import Redeem from './Pages/Redeem';
 import Profile from './Pages/Profile';
+import {ToastContainer } from 'react-toastify';
 
 function App() {
   return (
     <div className="App">
+      <ToastContainer />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
