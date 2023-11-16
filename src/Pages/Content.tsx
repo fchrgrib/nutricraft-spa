@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 import { useState } from "react";
 import axios from "axios";
+import {identity} from "lodash";
 
 const host = process.env.URL||'http://localhost:8080'
 
@@ -55,11 +56,16 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
         setShowConfirmation(false);
     };
 
-    const handleDelete = () => {
-        // Add your delete logic here
-        console.log('Deleting content...');
-        // Close the confirmation box after deletion or cancel
-        closeConfirmationBox();
+    const handleDelete = async () => {
+        closeConfirmationBox()
+
+        await axios.delete(`${host}/content/${content.id}`,{withCredentials: true}).then(()=>{
+            toast.success('successfully deleted content')
+            window.location.reload()
+        }).catch((e)=>{
+            console.log(e)
+            toast.dismiss('failed to delete content')
+        })
     };
 
 

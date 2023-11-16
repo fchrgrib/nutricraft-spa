@@ -1,46 +1,61 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import Navbar from "../components/Navbar";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 
 interface PromoCard {
     id: number;
     title: string;
     from: string;
-    cost: number;
+    coin: number;
 }
 
+interface userJwt{
+    uuid: string
+    name: string
+    email: string
+    iat: number
+}
+
+
+const host = process.env.URL||'http://localhost:8080'
+
 const Redeem = () => {
-    const [coins, setCoins] = useState(100);
-    const [promoCards, setPromoCards] = useState<PromoCard[]>([
-        {
-            id: 1,
-            title: "Free Shipping",
-            from: "Tokped",
-            cost: 50,
-        },
-        {
-            id: 2,
-            title: "10% Discount",
-            from: "Gojek",
-            cost: 75,
-        },
-        {
-            id: 3,
-            title: "20% Discount",
-            from: "XL",
-            cost: 100,
-        },
-    ]);
+    const [userToken, setUserToken] = useState<userJwt|null>(null)
+    const [coins, setCoins] = useState(0);
+    const [promoCards, setPromoCards] = useState<PromoCard[]|null>(null);
+    const _tempToken = Cookies.get('token')
+    const getCoinUser = async (uuid:string)=>{
+        axios.get(`${host}/coin/${uuid}`,{withCredentials: true}).then(response=>{
+            setCoins(response.data.coin)
+        })
+    }
 
-    const handleRedeem = (promoCard: PromoCard) => {
-        if (coins >= promoCard.cost) {
-            setCoins(coins - promoCard.cost);
-            // TODO: redeem promo card
-        } else {
-            alert("Not enough coins to redeem this promo card");
-        }
-    };
+    const getRequestRedeem = async ()=>{
+        await axios.get(`${host}/redeem`,{withCredentials: true}).then(response=>{
+            setPromoCards(response.data.data)
+        })
+    }
 
-    const numCards = promoCards.length;
+    useEffect(()=>{
+        getRequestRedeem()
+    },[])
+
+
+    useEffect(()=>{
+        if (_tempToken)
+            setUserToken(jwtDecode(_tempToken))
+    },[_tempToken])
+
+    useEffect(()=>{
+        if (userToken)
+            getCoinUser(userToken.uuid)
+
+    },[userToken])
+
+
+    const numCards = (promoCards)?promoCards.length:0;
     const numCols = numCards > 3 ? 3 : numCards;
 
     return (
@@ -55,7 +70,7 @@ const Redeem = () => {
                     </h5>
                 </div>
                 <div className="grid grid-cols-1 gap-4 mt-10 sm:grid-cols-2 md:grid-cols-3" style={{ gridAutoFlow: "dense" }}>
-                    {promoCards.map((promoCard) => (
+                    {(promoCards ?? []).map((promoCard) => (
                         <div
                             key={promoCard.id}
                             className="bg-white rounded-lg shadow-md p-4 flex flex-col justify-between"
@@ -65,10 +80,10 @@ const Redeem = () => {
                                 <p className="text-sm font-light">{promoCard.from}</p>
                             </div>
                             <div className="flex justify-between items-center mt-4">
-                                <p className="text-sm font-bold mr-5">{promoCard.cost} coins</p>
+                                <p className="text-sm font-bold mr-5">{promoCard.coin} coins</p>
                                 <button
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    onClick={() => handleRedeem(promoCard)}
+                                    onClick={()=>{}}
                                 >
                                     Redeem
                                 </button>
