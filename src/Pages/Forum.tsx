@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {ChangeEvent, useEffect, useState} from 'react'
 import {BiImageAdd} from 'react-icons/bi'
 import like from '../assets/like.png'
 import comment from '../assets/comment.png'
@@ -305,13 +305,54 @@ const Stats: React.FC<any> = ({userName, profPic, post, like}) => {
 
 const Forum = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [text, setText] = useState('');
+    const [title, setTitle] = useState('');
+    const [body, setBody] = useState('')
     const [userInfo, setUserInfo] = useState<userJwt|null>(null)
     const [userData, setUserData] = useState<user|null>(null)
     const [photoProfile, setPhotoProfile] = useState('')
     const [listForum, setListForum] = useState<forum[]|null>(null)
     const _tempToken = Cookies.get('token')
+    let file: File|null = null
 
+
+
+    const postForm = async (id: number)=>{
+        await axios.post(`${host}/forum`,{
+            title:title,
+            body: body,
+            id_file: id
+        },{withCredentials: true}).then(async ()=>{
+            console.log('successfully upload form')
+            await forumRequest()
+        })
+    }
+
+    const postFile = async () =>{
+
+        if (!title) {
+            return
+        }
+
+        if (!body)
+            return
+
+        if (!file) {
+            return
+        }
+
+        closeModal()
+        const formData = new FormData();
+        formData.append('file', file)
+        await axios.post(`${host}/image`,formData,{
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+        }).then(response=>{
+            console.log('successfully upload file')
+            postForm(response.data.id)
+        })
+    }
 
     const urlPhoto = async (uuid:string)=>{
         await axios.get(`${host}/image/profile/${uuid}`)
@@ -341,6 +382,15 @@ const Forum = () => {
         })
     }
 
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+        const fileInput = event.target;
+        if (fileInput.files && fileInput.files.length > 0) {
+            file = fileInput.files[0]
+        } else {
+            console.log('No file selected');
+        }
+    }
+
     useEffect(() => {
         if (_tempToken) {
             setUserInfo(jwtDecode(_tempToken));
@@ -356,9 +406,17 @@ const Forum = () => {
         }
     }, [userInfo])
 
+    useEffect(()=>{
+
+    },[])
+
     const handleTextChange = (event: any) => {
-        setText(event.target.value);
+        setTitle(event.target.value);
     };
+
+    const handleBodyChange = (event: any)=>{
+        setBody(event.target.value)
+    }
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -411,11 +469,11 @@ const Forum = () => {
                                 </div>
                                 <div className='hidden md:flex flex-col items-start'>
                                     <h2 className="text-[20px] font-bold">Title</h2>
-                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..."/>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." value={body} onChange={handleBodyChange}/>
                                 </div>
                                 <h2 className="text-[20px] font-bold mt-4">Body</h2>
                                 <textarea
-                                    value={text}
+                                    value={title}
                                     onChange={handleTextChange}
                                     placeholder="Type something..."
                                     className='border border-gray-300 p-2 rounded w-full h-44 mt-4 max-h-[80px] min-h-[30px]'
@@ -430,6 +488,8 @@ const Forum = () => {
                                         type="file"
                                         accept="image/*"
                                         className="hidden"
+                                        name="Image"
+                                        onChange={handleFileSelect}
                                     />
                                     <div className='flex flex-row gap-3 mb-10'>
                                         <button
@@ -440,6 +500,7 @@ const Forum = () => {
                                         </button>
                                         <button
                                             className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                            onClick={postFile}
                                         >
                                             Post
                                         </button>
