@@ -322,8 +322,8 @@ const Forum = () => {
             body: body,
             id_file: id
         },{withCredentials: true}).then(async ()=>{
-            console.log('successfully upload form')
-            await forumRequest()
+            console.log('successfully upload forum')
+            window.location.reload()
         })
     }
 
