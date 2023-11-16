@@ -159,9 +159,28 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
 
 
     const handleSave = async () => {
-        if (profileData.name === "") {
-        }
+        console.log(profileData)
+        await axios.put(`${host}/user/${profileData.id}`,{
+            name: profileData.name,
+            email: profileData.email,
+            title: profileData.title,
+            phone_number: profileData.phone,
+            description: profileData.description,
+            password: profileData.password
+        }, {withCredentials: true}).then(() => {
+            console.log("success update profile")
+        }).catch((e:any) => {
+            console.log(e)
+        })
         
+    }
+
+    const handleDelete = async () => {
+        await axios.delete(`${host}/user/${profileData.id}`, {withCredentials: true}).then(() => {
+            console.log("success delete user")
+        }).catch((e:any) => {
+            console.log(e)
+        })
     }
 
 
@@ -273,8 +292,8 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                             <hr/>
                             <div className="flex flex-row justify-center items-center gap-5 mt-5">
                             <button type="button" className="editButton bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" name="edit" id="edit" onClick={buttons} >Edit</button>
-                            <button type="button" className="saveButton bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" style={{display: 'none' }} name="save" id="save">Save</button>
-                            <button type="button" className="deleteButton bg-[red] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" name="delete" id="delete">Delete</button>
+                            <button type="button" className="saveButton bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" style={{display: 'none' }} name="save" id="save" onClick={handleSave}>Save</button>
+                            <button type="button" className="deleteButton bg-[red] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" name="delete" id="delete" onClick={handleDelete}>Delete</button>
                             <button type="button" className="cancelButton bg-white rounded-[30px] w-[120px] h-[30px] text-[#EF4800]  border border-[#EF4800] text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] hover:text-white transform scale-110 shadow-md" style={{display: 'none' }} onClick={buttons} name="cancel" id="cancel">Cancel</button>
                             </div>
                         </div>
