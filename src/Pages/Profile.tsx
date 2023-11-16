@@ -23,7 +23,7 @@ interface ProfileData {
   title: string;
   phone: string;
   description: string;
-  password: string;
+  password: string
   // add any other fields you need for the user's profile
 }
 
@@ -44,10 +44,11 @@ const Profile: React.FC = () => {
     title: '',
     phone: '',
     description: '',
-    password: '',
+    password: ''
   });
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [photo, setPhoto] = useState('');
+  const [exp, setExp] = useState(0)
 
 
 
@@ -56,28 +57,31 @@ const Profile: React.FC = () => {
   const host = process.env.URL||'http://localhost:8080'
 
   const fetchProfileData = async (uuid:string) => {
-    const response = await axios.post(`${host}/user`, {
+    await axios.post(`${host}/user`, {
       uuid: uuid
-    }, {withCredentials: true})
-    console.log(response.data.data)
-    const data = {
-        id: response.data.data.id,
-        name: response.data.data.name,
-        email: response.data.data.email,
-        title: response.data.data.title,
-        phone: response.data.data.phone_number,
-        description: response.data.data.description,
-        password: response.data.data.password,
-    }
-    setProfileData(data);
+    }, {withCredentials: true}).then(response=>{
+        console.log(response.data.data)
+        const data = {
+            id: response.data.data.id,
+            name: response.data.data.name,
+            email: response.data.data.email,
+            title: response.data.data.title,
+            phone: response.data.data.phone_number,
+            description: response.data.data.description,
+            password: response.data.data.password
+        }
+        setProfileData(data);
+        fetchPhoto(response.data.data.id_file)
+    })
+
 }
 
 
 
-    const fetchPhoto = async (uuid:string) => {
-        return await axios.get(`${host}/image/profile/${uuid}`)
+    const fetchPhoto = async (id:string) => {
+        return await axios.get(`${host}/image/${id}`)
             .then(response => {
-                setPhoto(response.data.url)
+                setPhoto(response.data.data.url)
             }).catch(e => {
                 console.log(e)
             })
@@ -122,19 +126,27 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
 };
     
 
-  useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) {
-      return;
-    }
-    else {
-        setUserInfo(jwtDecode(token));
-    }
-    }, []);
+      useEffect(() => {
+        const token = Cookies.get('token');
+        if (!token) {
+          return;
+        }
+        else {
+            setUserInfo(jwtDecode(token));
+        }
+        }, []);
+
+
+      const expRequest = async (uuid:string)=>{
+          await axios.get(`${host}/exp/${uuid}`,{withCredentials: true}).then(response=>{
+              setExp(response.data.exp)
+          })
+      }
     
     useEffect(() => {
         if (userInfo && userInfo.uuid) {
             fetchProfileData(userInfo.uuid);
+            expRequest(userInfo.uuid)
         }
     }, [userInfo]);
 
@@ -148,7 +160,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
             [name]: value,
         }));
     };
-    const handleChangedesc = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChangeDesc = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setProfileData((prev) => ({
             ...prev,
@@ -248,9 +260,9 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                     <h1 className='text-[30px] font-extrabold'>Profile</h1>
                     <div className='flex flex-row items-start gap-12'>
                         <div className="profileImage flex flex-col gap-20">
-                            <img src={photo} alt="profile" className='h-[200px] w-[200px]' />
+                            <img src={(photo)?photo:''} alt="profile" className='h-[200px] w-[200px]' />
                             {/* <Subscriber/> */}
-                            <LevelBar level={1} xp={325} />
+                            <LevelBar level={1} xp={exp} />
                         </div>
                         <div className='profileData flex flex-col justify-center items-start'>
                             <p className="labelProfile">Name</p>
@@ -274,7 +286,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                             <hr/>
                             <p className="labelProfile">Description</p>
                             <div className='flex'>
-                                <textarea value={profileData.description} className="textField max-h-[200px] min-h-[20px] bg-white border-none w-[90%] h-35 text-black no-underline text-16 font-semibold  shadow-none outline-none  mb-2" id="description" name="description" disabled onChange={handleChangedesc}/>
+                                <textarea value={profileData.description} className="textField max-h-[200px] min-h-[20px] bg-white border-none w-[90%] h-35 text-black no-underline text-16 font-semibold  shadow-none outline-none  mb-2" id="description" name="description" disabled onChange={handleChangeDesc}/>
                                 <i className="fas fa-edit editIcon"></i>
                             </div>
                             <p className="labelProfile">Phone Number</p>
