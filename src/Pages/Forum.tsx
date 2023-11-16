@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {BiImageAdd} from 'react-icons/bi'
 import like from '../assets/like.png'
 import comment from '../assets/comment.png'
@@ -7,7 +7,6 @@ import "../style/forum.css"
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
-import PhotoContent from "../assets/contoh.jpg"
 import Modal from "../components/Modal";
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
@@ -19,38 +18,174 @@ interface userJwt{
     iat: number
 }
 
+interface like{
+    id: number
+    id_creator: number
+    id_user: number
+}
 
-const ConstainerContent = () => {
-    const [likes, setLikes] = useState(0);
-    const [commentsCount, setCommentsCount] = useState(3);
-    const [isLike, setIsLike] = useState(false);
+interface forumUser{
+    id: number
+    title: string
+    body: string
+    id_file: number
+    id_creator: number
+}
+
+interface forum{
+    id: number
+    title: string
+    body: string
+    id_file: number
+    id_creator: number
+    created_at: string
+    updated_at: string
+    like: like[]
+    comment: comment[]
+}
+
+interface comment{
+    id: number
+    id_forum: number
+    id_user: number
+    id_creator: number
+    comment: string
+    created_at: string
+}
+
+interface user{
+    id:number
+    uuid: string
+    name: string
+    email: string
+    title: string
+    phone_number: string
+    description: string
+    id_file: number
+    created_at: string
+    updated_at: string
+    like_from_id_creator: like[]
+    forum: forumUser[]
+}
+
+const host = process.env.URL||'http://localhost:8080'
+
+const EachComment: React.FC<{comment: comment, index:number}> = ({comment,index})=>{
+
+    const [userComment, setUserComment] = useState<user|null>()
+
+    const requestUser = async () => {
+        await axios.get(`${host}/user/${comment.id_user}`, {withCredentials: true}).then(response => {
+            if (response.data.data) {
+                setUserComment(response.data.data)
+            }
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    useEffect(()=>{
+        requestUser()
+    },[])
+
+    return(
+        <div key={index} className="border-b border-gray-300 py-2">
+            <p>
+                <span className="font-bold">{(userComment)?userComment.name:''} </span>
+                {comment.comment}
+            </p>
+        </div>
+    )
+}
+
+const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,setLisForum}) => {
+
     const [isComment, setIsComment] = useState(false);
-    const [comments, setComments] = useState([
-        { user: "User1", comment: "Comment 1" },
-        { user: "User2", comment: "Comment 2" },
-        { user: "User3", comment: "Comment 3" },
-      ]);
+    const [userData, setUserData] = useState<user|null>(null)
+    const [urlPhotoUser, setUrlPhotoUser] = useState('')
+    const [urlPhotoForum, setUrlPhotoForum] = useState('')
+
+
+    const handleDislike = async ()=>{
+        await axios.delete(`${host}/like/${forum.id}`,{withCredentials: true}).then(()=>{
+            console.log('successfully dislike')
+            handleForumRequest()
+        }).catch(()=>{
+        })
+    }
+
+    const handleForumRequest = async () =>{
+        await axios.get(`${host}/forum`,{withCredentials: true}).then(response=>{
+            if (response.data.data)
+                setLisForum(response.data.data)
+        })
+    }
+
     
-    const handleLike = () => {
-        setIsLike(!isLike);
-        isLike? setLikes(likes-1) : setLikes(likes+1);
+    const handleLike = async () => {
+        await axios.post(`${host}/like`,{
+            id: forum.id,
+            id_creator: forum.id_creator
+        },{withCredentials:true}).then(()=>{
+            console.log('success like')
+            handleForumRequest()
+        }).catch(()=>{
+            handleDislike()
+        })
+    }
+
+    const requestUser = async () => {
+        await axios.get(`${host}/user/${forum.id_creator}`,{withCredentials: true}).then(response =>{
+            if (response.data.data) {
+                setUserData(response.data.data)
+                requestPhotoProfile(response.data.data.id_file)
+            }
+        }).catch(e =>{
+            console.log(e)
+        })
+
+        await axios.get(`${host}/image/${forum.id_file}`,{withCredentials: true}).then(response =>{
+            if (response.data.data)
+                setUrlPhotoForum(response.data.data.url)
+        })
+    }
+
+    const requestPhotoProfile = async (id: number) =>{
+        await axios.get(`${host}/image/${id}`,{withCredentials: true}).then(response =>{
+            if (response.data.data)
+                setUrlPhotoUser(response.data.data.url)
+        })
     }
     
     const handleComment = () => {
         setIsComment(!isComment);
     }
+
+    useEffect(()=>{
+        requestUser()
+    },[])
+
     
     const CommentSection = () => {
         const [newComment, setNewComment] = useState("");
-        const [newCommentUser, setNewCommentUser] = useState("NewUser");
-        
-        const handleSubmit = (e: any) => {
-            e.preventDefault();
-            const newCommentObject = { user: newCommentUser, comment: newComment };
-            setComments([...comments, newCommentObject]);
-            setCommentsCount(commentsCount+1);
-            setNewComment("");
+
+        const handleSubmit = async () => {
+            if (!newComment)
+                return
+
+            await axios.post(`${host}/comment`,{
+                id_forum: forum.id,
+                id_creator: forum.id_creator,
+                comment: newComment
+            }, {withCredentials: true}).then(()=>{
+                handleForumRequest()
+            })
           };
+
+
+
+
+
     
         return (
             <div className="mt-4">
@@ -68,13 +203,8 @@ const ConstainerContent = () => {
                     </button>
                 {/* </form> */}
                 <div className="mt-4">
-                    {comments.map((comment, index) => (
-                    <div key={index} className="border-b border-gray-300 py-2">
-                        <p>
-                        <span className="font-bold">{comment.user}: </span>
-                        {comment.comment}
-                        </p>
-                    </div>
+                    {forum.comment.map((comment, index) => (
+                        <EachComment key={index} comment={comment} index={index}/>
                     ))}
                 </div>
             </div>
@@ -85,31 +215,31 @@ const ConstainerContent = () => {
         <div>
             <div className="flex flex-col justify-center bg-white rounded-md shadow-md p-4 m-4" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.4)' }}>
                 <div className="flex flex-row items-center justify-start">
-                    <img src={profPic} alt="" className="h-10 mr-3"/>
+                    <img src={urlPhotoUser} alt="" className="h-10 mr-3"/>
                     <div className="flex flex-col items-start">
-                        <p className="text-sm font-bold">Username Creator</p>
+                        <p className="text-sm font-bold">{(userData)?userData.name:''}</p>
                         <div className="flex gap-2">
-                            <p className="text-xs">Title Creator</p>    
-                            <p className="text-xs">Date Upload</p>
+                            <p className="text-xs">{(userData)?userData.title:''}</p>
+                            <p className="text-xs">{forum.created_at}</p>
                         </div>
                     </div>
                 </div>
                 <div className="flex flex-col items-start justify-center">
-                    <p className="text-sm font-bold">Title Content</p>
-                    <p className="text-xs">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dignissimos, itaque? Nemo a quibusdam perferendis amet cum sequi deleniti hic, nisi optio cumque? Deserunt natus molestiae nulla modi harum odio doloremque!</p>
+                    <p className="text-sm font-bold">{forum.title}</p>
+                    <p className="text-xs">{forum.body}</p>
                     <div className='max-h-96 overflow-hidden'>
-                        <img src={PhotoContent} alt="" className='object-cover w-full h-full' />
+                        <img src={urlPhotoForum} alt="" className='object-cover w-full h-full' />
                     </div>
                 </div>
                 <div className='flex items-center justify-between my-3'>
                     <div className='flex justify-start gap-4 items-center mt-2'>
                         <button onClick={handleLike} className="flex items-center">
                             <img src={like} alt="" className="w-8 h-8" />
-                            <span className="text-sm font-semibold  text-gray-600 mt-1 ml-2">{likes}</span>
+                            <span className="text-sm font-semibold  text-gray-600 mt-1 ml-2">{forum.like.length}</span>
                         </button>
                         <button onClick={handleComment} className="flex items-center">
                             <img src={comment} alt="" className="w-8 h-8" />
-                            <span className="text-sm font-semibold text-gray-600 mt-1 ml-2">{commentsCount}</span>
+                            <span className="text-sm font-semibold text-gray-600 mt-1 ml-2">{forum.comment.length}</span>
                         </button>
                     </div>
                 </div>
@@ -122,8 +252,7 @@ const ConstainerContent = () => {
 }
 
 const Toptitle = () => {
-    const [posts, setPosts] = useState([]);
-    
+
 
     return (
         <div className='flex flex-row items-center'>
@@ -154,7 +283,7 @@ const Stats: React.FC<any> = ({userName, profPic, post, like}) => {
     return(
         <div className='profilecontainer pt-10 bg-[#fffcf1] h-full'>
             <div className='flex flex-col justify-center items-center'>
-                <img src="https://picsum.photos/200/300" alt="" className=' mt-10 rounded-full w-[100px] h-[100px]'/>
+                <img src={profPic} alt="" className=' mt-10 rounded-full w-[100px] h-[100px]'/>
                 <p className='font-bold text-xl mt-5'>{userName}</p>
             </div>
             <div className='flex flex-col justify-center items-center mt-10'>
@@ -178,12 +307,14 @@ const Forum = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [text, setText] = useState('');
     const [userInfo, setUserInfo] = useState<userJwt|null>(null)
+    const [userData, setUserData] = useState<user|null>(null)
     const [photoProfile, setPhotoProfile] = useState('')
+    const [listForum, setListForum] = useState<forum[]|null>(null)
     const _tempToken = Cookies.get('token')
-    const host = process.env.URL||'http://localhost:8080'
+
 
     const urlPhoto = async (uuid:string)=>{
-        return await axios.get(`${host}/image/profile/${uuid}`)
+        await axios.get(`${host}/image/profile/${uuid}`)
             .then(response => {
                 setPhotoProfile(response.data.url)
             }).catch(e => {
@@ -191,17 +322,39 @@ const Forum = () => {
             })
     }
 
+    const forumRequest = async () =>{
+        await axios.get(`${host}/forum`,{withCredentials: true}).then(response =>{
+            setListForum(response.data.data)
+        }).catch(e =>{
+            console.log(e)
+        })
+    }
+
+    const requestUser = async (uuid: string) => {
+        await axios.post(`${host}/user`,{
+            uuid: uuid
+        },{withCredentials: true}).then(response =>{
+            if (response.data.data)
+                setUserData(response.data.data)
+        }).catch(e =>{
+            console.log(e)
+        })
+    }
+
     useEffect(() => {
         if (_tempToken) {
             setUserInfo(jwtDecode(_tempToken));
         }
-    }, [_tempToken]);
+    }, [_tempToken])
 
-    useEffect(() => {
+    useEffect(()=>{
+        forumRequest()
         if (userInfo && userInfo.uuid) {
-            urlPhoto(userInfo.uuid);
+            urlPhoto(userInfo.uuid)
+            requestUser(userInfo.uuid)
+            console.log(userData)
         }
-    }, [userInfo]);
+    }, [userInfo])
 
     const handleTextChange = (event: any) => {
         setText(event.target.value);
@@ -222,7 +375,7 @@ const Forum = () => {
             <Navbar/>
             <div className='flex overflow-hidden' style={{ height: 'calc(100vh - 115px)' }}>
                 <div className='hidden md:block w-1/5'>
-                    <Stats userName={(userInfo)?userInfo.name:''} profPic={(photoProfile)?photoProfile:profPic} post={0} like={0}/>
+                    <Stats userName={(userInfo)?userInfo.name:''} profPic={(photoProfile)?photoProfile:profPic} post={(userData)?userData.forum.length:0} like={(userData)?userData.like_from_id_creator.length:0}/>
                 </div>
                 <div className=' md:w-3/5 overflow-y-auto scrollbar-thin '>
                 <div className='mr-5 ml-5'>
@@ -294,10 +447,9 @@ const Forum = () => {
                                 
                         </Modal>
                     </div>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
-                    <ConstainerContent/>
+                    {(listForum ?? []).map((data, index) => (
+                        <ContainerContent key={index} forum={data}  setLisForum={setListForum}/>
+                    ))}
                 </div>
                 </div>
                 <div className='hidden md:block w-1/5'>
