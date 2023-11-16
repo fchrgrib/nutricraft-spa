@@ -2,10 +2,11 @@
     import { useState, useEffect } from 'react';
     import logo from '../assets/NutriCraft.svg'
     import defaultPict from "../assets/default.svg"
-    import { Link } from 'react-router-dom';
+    import { Link , useNavigate} from 'react-router-dom';
     import Cookies from 'js-cookie';
     import {jwtDecode} from 'jwt-decode';
     import lodash from 'lodash';
+    import axios from "axios";
 
     interface userJwt{
         uuid: string
@@ -13,6 +14,8 @@
         email: string
         iat: number
     }
+
+    const host = process.env.URL||'http://localhost:8080'
 
     const Navbar = () =>{
         const [nav, setNav] = useState(false);
@@ -22,6 +25,16 @@
         const [admin, setAdmin] = useState(false);
         const [loggedIn, setLoggedIn] = useState(false);
         const [userInfo, setUserInfo] = useState<userJwt|null>(null)
+        const navigate = useNavigate()
+
+        const handleLogout = async ()=>{
+            await axios.delete(`${host}/logout`,{withCredentials:true}).then(()=>{
+                navigate('/',{replace: true})
+                window.location.reload()
+            }).catch((e)=>{
+                console.log(e)
+            })
+        }
 
         const handleNav = () => {
             setNav(!nav);
@@ -86,8 +99,8 @@
                                 <Link to="/profile">
                                     <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Profile</li>
                                 </Link>
-                                <a href="">
-                                    <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Logout</li>
+                                <a href=''>
+                                    <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100" >Logout</li>
                                 </a>
                             </ul>
                         </div>
@@ -125,7 +138,7 @@
                                 <Link to="/profile">
                                     <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Profile</li>
                                 </Link>
-                                <a href="">
+                                <a onClick={handleLogout}>
                                     <li className="flex w-full items-center px-3 py-2 text-sm bg-white hover:bg-gray-100">Logout</li>
                                 </a>
                             </ul>

@@ -1,13 +1,15 @@
 
 import Navbar from "../components/Navbar";
 import Modal from "../components/Modal";
-import React from 'react';
+import React, {ChangeEvent, useEffect} from 'react';
 import {BiImageAdd} from 'react-icons/bi'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { toast, ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 import { useState } from "react";
+import axios from "axios";
 
+const host = process.env.URL||'http://localhost:8080'
 
 interface ContentData {
     title: string;
@@ -15,9 +17,36 @@ interface ContentData {
     description: string;
 }
 
-const Card = () => {
-    const [showConfirmation, setShowConfirmation] = useState(false);
+interface viewer{
+    id: number
+    id_content: number
+    ip_address: string
+}
 
+interface content{
+    id: number
+    title: string
+    highlight: string
+    body: string
+    id_creator: number
+    id_photo: number
+    created_at: string,
+    updated_at: string
+    viewers: viewer[]
+}
+
+const Card: React.FC<{content: content, setListContent: any}> = ({content, setListContent}) => {
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [urlPhoto, setUrlPhoto] = useState('')
+
+    useEffect(()=>{
+        requestUrlPhoto()
+    },[])
+    const requestUrlPhoto = async ()=>{
+        axios.get(`${host}/image/${content.id_photo}`,{withCredentials: true}).then(response=>{
+            setUrlPhoto(response.data.data.url)
+        })
+    }
     const openConfirmationBox = () => {
         setShowConfirmation(true);
     };
@@ -38,17 +67,17 @@ const Card = () => {
     return (
         <div className="contentcard flex flex-col p-5 justify-center items-center border-[#EF4800] border-[1px] rounded-xl shadow-md hover:border-[aqua] transition duration-300">
             <div className="contentcardheader flex flex-row justify-between items-center">
-                <h1 className="font-bold text-2xl">TitleContent</h1>
+                <h1 className="font-bold text-2xl">{content.title}</h1>
             </div>
             <div className="contentcardbody flex flex-row justify-between items-center">
                 <div className="contentcardimage mr-5">
-                    <img src="https://picsum.photos/200/300" alt="" className="w-[100px] h-[100px] rounded-full"/>
+                    <img src={(urlPhoto)?urlPhoto:"https://picsum.photos/200/300"} alt="" className="w-[100px] h-[100px] rounded-full"/>
                 </div>
                 <div className="contentcardtext mr-5">
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptas.</p>
+                    <p>{content.highlight}</p>
                 </div>
                 <div className="contentcardbutton flex flex-col gap-5">
-                    <Link to="/content/1">
+                    <Link to={`/content/${content.id}`}>
                     <button className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md">Edit</button>
                     </Link>
                     <button className=" border-[#EF4800] border-[1px] rounded-[30px] w-[120px] h-[30px] text-[red] text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[red] hover:text-[#FFFFFF] transform scale-110 shadow-md" onClick={openConfirmationBox}>Delete</button>
@@ -87,6 +116,7 @@ const Card = () => {
                     </div>
                 </div>
             )}
+            <ToastContainer/>
         </div>
     );
             
@@ -100,6 +130,67 @@ const Content = () => {
         highlight: "",
         description: "",
     });
+    const [listContent, setListContent] = useState<content[]|null>(null)
+    let file: File|null = null
+
+
+    const handleContentRequest = async ()=>{
+        await axios.get(`${host}/content`,{withCredentials: true}).then(response=>{
+            setListContent(response.data.data)
+        })
+    }
+
+    useEffect(()=>{
+        handleContentRequest()
+    },[])
+
+    const handlerPostFile = async ()=>{
+        if (!contentData.description)
+            return
+
+        if (!contentData.title)
+            return
+
+        if (!contentData.highlight)
+            return
+
+        if (file == null)
+            return
+
+        const formData = new FormData();
+        formData.append('file', file)
+        await axios.post(`${host}/image`,formData,{
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+        }).then(response=>{
+            console.log('successfully upload file')
+            postRequestContent(response.data.id)
+        }).catch(()=>{
+            toast.dismiss('failed to post file')
+        })
+
+        closeModal()
+    }
+
+    const postRequestContent = async (id: number)=>{
+
+        await axios.post(`${host}/content`,{
+            title: contentData.title,
+            highlight: contentData.highlight,
+            body: contentData.description,
+            id_photo: id
+        },{withCredentials: true}).then(()=>{
+            toast.success('Successfully post content')
+            setContentData({title:'',description:'',highlight:''})
+            window.location.reload()
+        }).catch((e)=>{
+            console.log(e)
+            toast.dismiss('failed to post content')
+        })
+        closeModal()
+    }
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -128,7 +219,7 @@ const Content = () => {
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files && e.target.files[0];
         if (selectedFile) {
-          alert('Selected file: ' + selectedFile.name);
+         file = selectedFile
           // You can perform additional actions with the selected file
           console.log(selectedFile);
         }
@@ -171,14 +262,15 @@ const Content = () => {
                                 </div>
                                 <div className='hidden md:flex flex-col items-start'>
                                     <h2 className="text-[20px] font-bold">Title</h2>
-                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." value={contentData.title} onChange={handleChange}/>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." name="title" value={contentData.title} onChange={handleChange}/>
                                 </div>
                                 <div className='hidden md:flex flex-col items-start'>
                                     <h2 className="text-[20px] font-bold">Highlight</h2>
-                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." value={contentData.highlight} onChange={handleChange}/>
+                                    <input className='border border-gray-300 p-2 rounded w-full mt-4' type="text" placeholder="Type something..." name="highlight" value={contentData.highlight} onChange={handleChange}/>
                                 </div>
                                 <h2 className="text-[20px] font-bold mt-4">Description</h2>
                                 <textarea
+                                    name="description"
                                     value={contentData.description}
                                     onChange={handleTextChange}
                                     placeholder="Type something..."
@@ -205,6 +297,7 @@ const Content = () => {
                                         </button>
                                         <button
                                             className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
+                                            onClick={handlerPostFile}
                                         >
                                             Post
                                         </button>
@@ -214,9 +307,9 @@ const Content = () => {
                     </div>
                 </div>
                 <div className="contentbody flex flex-col justify-center items-center mt-10 gap-8">
-                    <Card/>
-                    <Card/>
-                    <Card/>
+                    {(listContent ?? []).map((data,index)=>(
+                        <Card key={index} content={data} setListContent={setListContent}/>
+                    ))}
                 </div>
             </div>
         </div>

@@ -19,6 +19,8 @@ interface ContentData {
     description: string;
 }
 
+const host = process.env.URL||'http://localhost:8080'
+
 
 
 const IDPage = () => {
@@ -31,33 +33,32 @@ const IDPage = () => {
         description: "",
     });
 
-    const host = process.env.URL||'http://localhost:8080'
 
-    const getContentData = async (id:string) => {
-        // return await axios.get(`${host}/content/${id}`)
-        //     .then(response => {
-        //         setTitle(response.data.title);
-        //         setHighlight(response.data.highlight);
-        //         setDescription(response.data.description);
-        //     }).catch(e => {
-        //         console.log(e)
-        //     })
-        const data = {
-            title: "How to make a website",
-            highlight: "Learn how to make a website in 5 minutes",
-            // long desc
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla euismod, mauris sed consectetur fringilla, nunc turpis interdum nisl, et varius libero mauris sed justo. Sed ac semper sapien. Sed vitae mi euismod, aliquam nisl ac, aliquet nisl. Donec nec semper nunc. Nulla facilisi. Nullam auctor, ligula eu aliquam maximus, nulla nisl consequat libero, non maximus magna nisl vitae nunc. Sed auctor, quam nec luctus ultrices, tellus ipsum ultricies urna, vel vulputate nisl nulla vitae elit. Integer vel erat sit amet libero tempor aliquam. Sed auctor, quam nec luctus ultrices, tellus ipsum ultricies urna, vel vulputate nisl nulla vitae elit. Integer vel erat sit amet libero tempor aliquam.",
-        }
-        setContentData(data);
+    const requestPhoto = async (id: number)=>{
+        axios.get(`${host}/image/${id}`,{withCredentials: true}).then(response=>{
+            setPhoto(response.data.data.url)
+        })
+    }
+
+    const getContentData = async () => {
+        await axios.get(`${host}/content/${id}`,{withCredentials: true})
+            .then(response => {
+                setContentData({
+                    title:response.data.data[0].title,
+                    highlight: response.data.data[0].highlight,
+                    description: response.data.data[0].body
+                })
+                requestPhoto(response.data.data[0].id_photo)
+                console.log(response.data.data[0])
+            }).catch(e => {
+                console.log(e)
+            })
     }
 
 
     useEffect(() => {
-        if (id) {
-            console.log(id);
-            getContentData(id);
-        }
-    }, [id]);
+        getContentData()
+    }, []);
 
 
 
@@ -109,7 +110,7 @@ const IDPage = () => {
             <Navbar />
             <div className="content flex flex-col gap-[20px]">
                 <div className="factcontainer mt-[50px] ml-[50px] flex flex-col gap-[20px] align-start justify-start">
-                    <img src="https://picsum.photos/200/300" alt="" className="w-[50vw] h-[30vw] rounded-xl shadow-md" />
+                    <img src={(photo)?photo:"https://picsum.photos/200/300"} alt="" className="w-[50vw] h-[30vw] rounded-xl shadow-md" />
                     <button onClick={openFileExplorer} className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md">Upload</button>
                     <input
         type="file"
