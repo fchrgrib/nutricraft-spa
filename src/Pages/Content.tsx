@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useState } from "react";
 import axios from "axios";
 import {identity} from "lodash";
+import useToast from "../hooks/useToast";
 
 const host = process.env.URL||'http://localhost:8080'
 
@@ -39,6 +40,7 @@ interface content{
 const Card: React.FC<{content: content, setListContent: any}> = ({content, setListContent}) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [urlPhoto, setUrlPhoto] = useState('')
+    const {showToast} = useToast()
 
     useEffect(()=>{
         requestUrlPhoto()
@@ -60,11 +62,11 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
         closeConfirmationBox()
 
         await axios.delete(`${host}/content/${content.id}`,{withCredentials: true}).then(()=>{
-            toast.success('successfully deleted content')
+            showToast('Content deleted', 'success')
             window.location.reload()
         }).catch((e)=>{
             console.log(e)
-            toast.dismiss('failed to delete content')
+            showToast('Failed to delete content', 'error')
         })
     };
 
@@ -122,6 +124,38 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
                     </div>
                 </div>
             )}
+            {showConfirmation && (
+                <div className="fixed z-10 inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
+                    <div className="absolute inset-0"></div>
+                    <div className="relative bg-white rounded-lg p-8 max-w-md w-full">
+                        <div className="bg-white rounded-md p-6">
+                            {/* ... (confirmation box content) */}
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Delete Content
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Are you sure you want to delete this content? All of your data will be permanently removed. This action cannot be undone.
+                            </p>
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={handleDelete}
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    type="button"
+                                    className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={closeConfirmationBox}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             <ToastContainer/>
         </div>
     );
@@ -131,6 +165,7 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
 
 const Content = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isConfirmationBoxCreate, setIsConfirmationBoxCreate] = useState(false)
     const [contentData, setContentData] = useState<ContentData>({
         title: "",
         highlight: "",
@@ -151,6 +186,7 @@ const Content = () => {
     },[])
 
     const handlerPostFile = async ()=>{
+        console.log(contentData)
         if (!contentData.description)
             return
 
@@ -162,7 +198,7 @@ const Content = () => {
 
         if (file == null)
             return
-
+        console.log('masuk')
         const formData = new FormData();
         formData.append('file', file)
         await axios.post(`${host}/image`,formData,{
@@ -176,8 +212,7 @@ const Content = () => {
         }).catch(()=>{
             toast.dismiss('failed to post file')
         })
-
-        closeModal()
+        closeBox()
     }
 
     const postRequestContent = async (id: number)=>{
@@ -205,8 +240,16 @@ const Content = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        document.body.style.overflow = "scroll"
     };
+
+    const openBox = () => {
+        closeModal()
+        setIsConfirmationBoxCreate(true)
+    }
+
+    const closeBox = () => {
+        setIsConfirmationBoxCreate(false)
+    }
 
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setContentData({
@@ -239,7 +282,7 @@ const Content = () => {
                     <h1 className="font-semibold text-3xl">Content</h1>
                     <div className="searchBar flex items-center mt-5 ml-10 p-2 rounded-full border border-gray-300 focus-within:ring focus-within:border-blue-500">
                     <button name="" className="w-4/5 h-10 outline-none text-left "  onClick={openModal}>Create Content</button>
-                        <Modal isOpen={isModalOpen} className="no-scroll modal"> 
+                        <Modal isOpen={isModalOpen} className=" no-scroll modal" id='createcontainer'>
                                 <div className='hidden md:flex justify-between'>
                                     <button
                                         className="text-gray-600 hover:text-gray-800 text-[30px] "
@@ -303,7 +346,7 @@ const Content = () => {
                                         </button>
                                         <button
                                             className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
-                                            onClick={handlerPostFile}
+                                            onClick={openBox}
                                         >
                                             Post
                                         </button>
@@ -318,6 +361,38 @@ const Content = () => {
                     ))}
                 </div>
             </div>
+            {isConfirmationBoxCreate && (
+                <div className="fixed inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
+                    <div className="absolute inset-0"></div>
+                    <div className="relative z-30 bg-white rounded-lg p-8 max-w-md w-full">
+                        <div className="bg-white rounded-md p-6">
+                            {/* ... (confirmation box content) */}
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Create Content
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Are you sure you want to Create this content?
+                            </p>
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={handlerPostFile}
+                                >
+                                    Create
+                                </button>
+                                <button
+                                    type="button"
+                                    className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={closeBox}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

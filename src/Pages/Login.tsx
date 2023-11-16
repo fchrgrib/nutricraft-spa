@@ -32,11 +32,13 @@ const Login = () => {
     const handleLogin = async () => {
         if(!loginData.emailLog){
             //TODO: notify user
+            showToast('Please fill the email', 'error')
             console.log('email doesnt fill anything')
             return
         }
         if (!loginData.passLog){
             //TODO: notify user
+            showToast('Please fill the password', 'error')
             console.log('password doesnt fill anything')
             return
         }
@@ -58,10 +60,12 @@ const Login = () => {
                 })
                 return
             }
+            showToast('Failed to login, check your email/password', "error")
 
             console.log('user failed to login')
             return
         }catch (e: any) {
+            showToast('Failed to login, check your email/password', "error")
             console.log(e.response.data.status)
         }
     };

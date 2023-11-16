@@ -215,7 +215,7 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
         <div>
             <div className="flex flex-col justify-center bg-white rounded-md shadow-md p-4 m-4" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.4)' }}>
                 <div className="flex flex-row items-center justify-start">
-                    <img src={urlPhotoUser} alt="" className="h-10 mr-3"/>
+                    <img src={urlPhotoUser} alt="" className="h-10 w-10 mr-3 rounded-full"/>
                     <div className="flex flex-col items-start">
                         <p className="text-sm font-bold">{(userData)?userData.name:''}</p>
                         <div className="flex gap-2">
@@ -224,9 +224,9 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col items-start justify-center">
+                <div className="flex flex-col items-start justify-center mt-1">
                     <p className="text-sm font-bold">{forum.title}</p>
-                    <p className="text-xs">{forum.body}</p>
+                    <p className="text-xs mb-2">{forum.body}</p>
                     <div className='max-h-96 overflow-hidden'>
                         <img src={urlPhotoForum} alt="" className='object-cover w-full h-full' />
                     </div>
