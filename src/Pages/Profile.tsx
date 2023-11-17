@@ -52,6 +52,7 @@ const Profile: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [photo, setPhoto] = useState('');
   const [exp, setExp] = useState(0)
+  const [file, setFile] = useState<File|null>(null)
 
 
 
@@ -236,6 +237,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
           document.getElementById("editPassword")!.removeAttribute("disabled");
           document.getElementById("save")!.style.display = "block";
           document.getElementById("cancel")!.style.display = "block";
+          document.getElementById("photobtn")!.style.display = "block";
           document.getElementById("edit")!.style.display = "none";
           document.getElementById("delete")!.style.display = "none";
           
@@ -250,6 +252,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
           document.getElementById("phoneNumber")!.setAttribute("disabled", "true");
           document.getElementById("editPassword")!.setAttribute("disabled", "true");
           document.getElementById("save")!.style.display = "none";
+          document.getElementById("photobtn")!.style.display = "none";
           document.getElementById("cancel")!.style.display = "none";
           document.getElementById("edit")!.style.display = "block";
           document.getElementById("delete")!.style.display = "block";
@@ -258,6 +261,22 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
       }
       setIsEdit(!isEdit);
       }
+
+      const openFileExplorer = () => {
+        // Trigger click event on the hidden file input
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+        fileInput.click();
+      };
+
+      const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files && e.target.files[0];
+        if (selectedFile) {
+          setFile(selectedFile)
+        }
+        else {
+            showToast('No photo selected', 'error')
+        }
+      };
   if (!profileData) {
     return <div>Loading...</div>;
   }
@@ -273,6 +292,14 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                         <div className="profileImage flex flex-col gap-20">
                             <img src={(photo)?photo:''} alt="profile" className='h-[200px] w-[200px]' />
                             {/* <Subscriber/> */}
+                            <button onClick={openFileExplorer} id="photobtn" className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" style={{display: "none"}}>Upload</button>
+                            <input
+                                type="file"
+                                id="fileInput"
+                                accept="*"
+                                style={{ display: 'none' }}
+                                onChange={handleFileSelection}
+                            />
                             <LevelBar level={1} xp={exp} />
                         </div>
                         <div className='profileData flex flex-col justify-center items-start'>
