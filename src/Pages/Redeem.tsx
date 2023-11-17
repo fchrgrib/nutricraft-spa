@@ -32,6 +32,17 @@ const Redeem = () => {
         })
     }
 
+    const postRequestRedeem = async (id: number)=>{
+        axios.post(`${host}/redeem/user`,{
+            redeem_id: id
+        }, {withCredentials: true}).then(()=>{
+            console.log('successfully redeem')
+            window.location.reload()
+        }).catch((e)=>{
+            console.log(e)
+        })
+    }
+
     const getRequestRedeem = async ()=>{
         await axios.get(`${host}/redeem`,{withCredentials: true}).then(response=>{
             setPromoCards(response.data.data)
@@ -83,7 +94,7 @@ const Redeem = () => {
                                 <p className="text-sm font-bold mr-5">{promoCard.coin} coins</p>
                                 <button
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    onClick={()=>{}}
+                                    onClick={()=>{postRequestRedeem(promoCard.id)}}
                                 >
                                     Redeem
                                 </button>
