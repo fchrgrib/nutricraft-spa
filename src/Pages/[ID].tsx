@@ -18,6 +18,7 @@ interface ContentData {
     title: string;
     highlight: string;
     description: string;
+    id_photo:number
 }
 
 const host = process.env.URL||'http://localhost:8080'
@@ -34,7 +35,9 @@ const IDPage = () => {
         title: "",
         highlight: "",
         description: "",
+        id_photo:0
     });
+    const [file, setFile] = useState<File|null>(null)
 
 
     const requestPhoto = async (id: number)=>{
@@ -49,10 +52,12 @@ const IDPage = () => {
                 setContentData({
                     title:response.data.data[0].title,
                     highlight: response.data.data[0].highlight,
-                    description: response.data.data[0].body
+                    description: response.data.data[0].body,
+                    id_photo: response.data.data[0].id_photo
                 })
-                requestPhoto(response.data.data[0].id_photo)
                 console.log(response.data.data[0])
+                requestPhoto(response.data.data[0].id_photo)
+
             }).catch(e => {
                showToast('Failed to get content', 'error')
             })
@@ -93,19 +98,43 @@ const IDPage = () => {
     };
 
 
-    const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files && e.target.files[0];
         if (selectedFile) {
-          alert('Selected file: ' + selectedFile.name);
-          // You can perform additional actions with the selected file
-          
+          setFile(selectedFile)
         }
         else {
             showToast('No photo selected', 'error')
         }
       };
 
-      const handleSave = async () => {
+
+      const handleFile = async ()=>{
+
+          if (!file)
+              return
+
+          const formData = new FormData()
+          formData.append('file', file)
+          await axios.post(`${host}/image`,formData,{
+              headers:{
+                  'Content-Type': 'multipart/form-data'
+              },
+              withCredentials: true
+          }).then(response=>{
+              console.log('successfully upload file')
+              handleSave(response.data.id)
+              closeConfirmation()
+              window.location.reload()
+          }).catch(()=>{
+              showToast('Failed to upload file', 'error')
+              closeConfirmation()
+          })
+      }
+
+
+
+      const handleSave = async (id_photo: number) => {
         if (!contentData.title){
             return
         }
@@ -122,7 +151,7 @@ const IDPage = () => {
             title: contentData.title,
             highlight: contentData.highlight,
             body: contentData.description,
-            photo: photo
+            id_photo: id_photo
         },{withCredentials: true}).then(()=>{
             showToast('Content successfully updated', 'success')
         }).catch((e)=>{
@@ -189,7 +218,7 @@ const IDPage = () => {
                                 <button
                                     type="button"
                                     className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
-                                    onClick={handleSave}
+                                    onClick={handleFile}
                                 >
                                     Save
                                 </button>

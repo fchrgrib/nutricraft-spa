@@ -130,7 +130,6 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
             id: forum.id,
             id_creator: forum.id_creator
         },{withCredentials:true}).then(()=>{
-            showToast('Successfully like', 'success')
             handleForumRequest()
         }).catch(()=>{
             handleDislike()

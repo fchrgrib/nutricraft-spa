@@ -132,7 +132,7 @@ const Redeem = () => {
                                                 className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
                                                 onClick={()=>{postRequestRedeem(promoCard.id)}}
                                             >
-                                                Delete
+                                                Redeem
                                             </button>
                                             <button
                                                 type="button"
