@@ -62,10 +62,9 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
         closeConfirmationBox()
 
         await axios.delete(`${host}/content/${content.id}`,{withCredentials: true}).then(()=>{
-            showToast('Content deleted', 'success')
             window.location.reload()
+            showToast('Content deleted', 'success')
         }).catch((e)=>{
-            console.log(e)
             showToast('Failed to delete content', 'error')
         })
     };
@@ -124,38 +123,6 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
                     </div>
                 </div>
             )}
-            {showConfirmation && (
-                <div className="fixed z-10 inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
-                    <div className="absolute inset-0"></div>
-                    <div className="relative bg-white rounded-lg p-8 max-w-md w-full">
-                        <div className="bg-white rounded-md p-6">
-                            {/* ... (confirmation box content) */}
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                Delete Content
-                            </h3>
-                            <p className="text-sm text-gray-500 mt-2">
-                                Are you sure you want to delete this content? All of your data will be permanently removed. This action cannot be undone.
-                            </p>
-                            <div className="mt-4 flex justify-end">
-                                <button
-                                    type="button"
-                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
-                                    onClick={handleDelete}
-                                >
-                                    Delete
-                                </button>
-                                <button
-                                    type="button"
-                                    className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
-                                    onClick={closeConfirmationBox}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
             <ToastContainer/>
         </div>
     );
@@ -164,6 +131,7 @@ const Card: React.FC<{content: content, setListContent: any}> = ({content, setLi
 
 
 const Content = () => {
+    const {showToast} = useToast()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmationBoxCreate, setIsConfirmationBoxCreate] = useState(false)
     const [contentData, setContentData] = useState<ContentData>({
@@ -178,6 +146,8 @@ const Content = () => {
     const handleContentRequest = async ()=>{
         await axios.get(`${host}/content`,{withCredentials: true}).then(response=>{
             setListContent(response.data.data)
+        }).catch((e)=>{
+            showToast('Failed to get content', 'error')
         })
     }
 
@@ -210,7 +180,7 @@ const Content = () => {
             console.log('successfully upload file')
             postRequestContent(response.data.id)
         }).catch(()=>{
-            toast.dismiss('failed to post file')
+            showToast('Failed to upload file', 'error')
         })
         closeBox()
     }
@@ -223,12 +193,12 @@ const Content = () => {
             body: contentData.description,
             id_photo: id
         },{withCredentials: true}).then(()=>{
-            toast.success('Successfully post content')
+            showToast('Content posted', 'success')
             setContentData({title:'',description:'',highlight:''})
             window.location.reload()
         }).catch((e)=>{
             console.log(e)
-            toast.dismiss('failed to post content')
+            showToast('Failed to post content', 'error')
         })
         closeModal()
     }
@@ -272,7 +242,10 @@ const Content = () => {
           // You can perform additional actions with the selected file
           console.log(selectedFile);
         }
+        else{
+            showToast('Failed to upload file', 'error')
       };
+    }
 
     return (
         <div>
@@ -346,7 +319,7 @@ const Content = () => {
                                         </button>
                                         <button
                                             className="bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 w-16 h-8 self-end hidden md:block"
-                                            onClick={openBox}
+                                            onClick={handlerPostFile}
                                         >
                                             Post
                                         </button>
@@ -361,38 +334,6 @@ const Content = () => {
                     ))}
                 </div>
             </div>
-            {isConfirmationBoxCreate && (
-                <div className="fixed inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
-                    <div className="absolute inset-0"></div>
-                    <div className="relative z-30 bg-white rounded-lg p-8 max-w-md w-full">
-                        <div className="bg-white rounded-md p-6">
-                            {/* ... (confirmation box content) */}
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                Create Content
-                            </h3>
-                            <p className="text-sm text-gray-500 mt-2">
-                                Are you sure you want to Create this content?
-                            </p>
-                            <div className="mt-4 flex justify-end">
-                                <button
-                                    type="button"
-                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
-                                    onClick={handlerPostFile}
-                                >
-                                    Create
-                                </button>
-                                <button
-                                    type="button"
-                                    className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
-                                    onClick={closeBox}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

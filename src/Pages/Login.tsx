@@ -62,11 +62,10 @@ const Login = () => {
             }
             showToast('Failed to login, check your email/password', "error")
 
-            console.log('user failed to login')
             return
         }catch (e: any) {
             showToast('Failed to login, check your email/password', "error")
-            console.log(e.response.data.status)
+            // console.log(e.response.data.status)
         }
     };
 

@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Cookies from "js-cookie";
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
+import useToast from "../hooks/useToast";
 
 interface PromoCard {
     id: number;
@@ -22,6 +23,8 @@ interface userJwt{
 const host = process.env.URL||'http://localhost:8080'
 
 const Redeem = () => {
+    const {showToast} = useToast()
+    const [showConfirmationBox, setShowConfirmationBox] = useState(false);
     const [userToken, setUserToken] = useState<userJwt|null>(null)
     const [coins, setCoins] = useState(0);
     const [promoCards, setPromoCards] = useState<PromoCard[]|null>(null);
@@ -29,6 +32,8 @@ const Redeem = () => {
     const getCoinUser = async (uuid:string)=>{
         axios.get(`${host}/coin/${uuid}`,{withCredentials: true}).then(response=>{
             setCoins(response.data.coin)
+        }).catch(e=>{
+            showToast('Failed to get coin', 'error')
         })
     }
 
@@ -36,16 +41,18 @@ const Redeem = () => {
         axios.post(`${host}/redeem/user`,{
             redeem_id: id
         }, {withCredentials: true}).then(()=>{
-            console.log('successfully redeem')
+            showToast('Redeem success', 'success')
             window.location.reload()
         }).catch((e)=>{
-            console.log(e)
+            showToast('Failed to redeem', 'error')
         })
     }
 
     const getRequestRedeem = async ()=>{
         await axios.get(`${host}/redeem`,{withCredentials: true}).then(response=>{
             setPromoCards(response.data.data)
+        }).catch(e=>{
+            showToast('Failed to get redeem', 'error')
         })
     }
 
@@ -64,6 +71,14 @@ const Redeem = () => {
             getCoinUser(userToken.uuid)
 
     },[userToken])
+
+    const openBox = () => {
+        setShowConfirmationBox(true);
+    }
+
+    const closeBox = () => {
+        setShowConfirmationBox(false);
+    }
 
 
     const numCards = (promoCards)?promoCards.length:0;
@@ -93,12 +108,44 @@ const Redeem = () => {
                             <div className="flex justify-between items-center mt-4">
                                 <p className="text-sm font-bold mr-5">{promoCard.coin} coins</p>
                                 <button
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    onClick={()=>{postRequestRedeem(promoCard.id)}}
+                                    className="bg-[#EF4800] hover:bg-[#FF6B00] text-white rounded-lg px-4 py-2 font-bold"
+                                    onClick={openBox}
                                 >
                                     Redeem
                                 </button>
                             </div>
+                            {showConfirmationBox && (
+                            <div className="fixed z-10 inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
+                                <div className="absolute inset-0"></div>
+                                <div className="relative bg-white rounded-lg p-8 max-w-md w-full">
+                                    <div className="bg-white rounded-md p-6">
+                                        {/* ... (confirmation box content) */}
+                                        <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                            Redeem Voucher
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            Are you sure you want to redeem this voucher?
+                                        </p>
+                                        <div className="mt-4 flex justify-end">
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                                onClick={()=>{postRequestRedeem(promoCard.id)}}
+                                            >
+                                                Delete
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                                onClick={closeBox}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         </div>
                     ))}
                 </div>

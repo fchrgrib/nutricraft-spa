@@ -3,6 +3,7 @@ import "../style/register.css";
 import logo from "../assets/NutriCraft.svg";
 import axios, {AxiosError} from 'axios';
 import { Link, useNavigate } from "react-router-dom";
+import useToast from "../hooks/useToast";
 
 interface RegisterData {
     nameLog: string;
@@ -18,6 +19,7 @@ const Register = () => {
     // TODO: Change this is you want to deploy in docker as your container name
     const url = process.env.URL||'http://localhost:8080'
     const navigate = useNavigate()
+    const {showToast} = useToast()
 
     const [registerData, setRegisterData] = useState<RegisterData>({
         nameLog: "",
@@ -44,41 +46,40 @@ const Register = () => {
     };
 
     const handleRegister = async () => {
-        if (!registerData.descLog) {
+        if (!registerData.nameLog){
             // TODO: notified user
-            console.log("desc log doesn't fill")
+            showToast('Please fill the name', 'error')
             return
         }
-
+        if (!registerData.emailLog){
+            // TODO: notified user
+            showToast('Please fill the email', 'error')
+            return
+        }
         if (!registerData.titleLog) {
             // TODO: notified user
-            console.log("title doesn't fill")
+            showToast('Please fill the title', 'error')
+            return
+        }
+        if (!registerData.phoneLog){
+            // TODO: notified user
+            showToast('Please fill the phone number', 'error')
+            return
+        }
+        if (!registerData.descLog) {
+            // TODO: notified user
+            showToast('Please fill the description', 'error')
             return
         }
 
         if (!registerData.passLog){
             // TODO: notified user
-            console.log("password doesn't fill")
+            showToast('Please fill the password', 'error')
             return
         }
 
-        if (!registerData.nameLog){
-            // TODO: notified user
-            console.log("name doesn't fill")
-            return
-        }
 
-        if (!registerData.emailLog){
-            // TODO: notified user
-            console.log("email doesn't fill")
-            return
-        }
 
-        if (!registerData.phoneLog){
-            // TODO: notified user
-            console.log("phone doesn't fill")
-            return
-        }
 
 
         try {
@@ -92,11 +93,11 @@ const Register = () => {
                 id_file:1
             })
             if (postRegister.status<400) {
-                console.log('successfully registered user')
+                showToast('Register success', 'success')
                 navigate('/login')
                 return
             }
-            console.log('failed to registered user')
+            showToast('Failed to register', 'error')
         }catch (e : any) {
             console.log(e.response.data.status)
             return

@@ -4,6 +4,7 @@ import like from '../assets/like.png'
 import comment from '../assets/comment.png'
 import Cookies from "js-cookie";
 import "../style/forum.css"
+import useToast from "../hooks/useToast";
 
 import profPic from "../assets/default.svg"
 import Navbar from "../components/Navbar";
@@ -71,6 +72,7 @@ interface user{
 const host = process.env.URL||'http://localhost:8080'
 
 const EachComment: React.FC<{comment: comment, index:number}> = ({comment,index})=>{
+    const {showToast} = useToast()
 
     const [userComment, setUserComment] = useState<user|null>()
 
@@ -80,7 +82,7 @@ const EachComment: React.FC<{comment: comment, index:number}> = ({comment,index}
                 setUserComment(response.data.data)
             }
         }).catch(e => {
-            console.log(e)
+            showToast('Failed to validated user', 'error')
         })
     }
 
@@ -104,6 +106,7 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
     const [userData, setUserData] = useState<user|null>(null)
     const [urlPhotoUser, setUrlPhotoUser] = useState('')
     const [urlPhotoForum, setUrlPhotoForum] = useState('')
+    const {showToast} = useToast()
 
 
     const handleDislike = async ()=>{
@@ -127,7 +130,7 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
             id: forum.id,
             id_creator: forum.id_creator
         },{withCredentials:true}).then(()=>{
-            console.log('success like')
+            showToast('Successfully like', 'success')
             handleForumRequest()
         }).catch(()=>{
             handleDislike()
@@ -141,7 +144,7 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
                 requestPhotoProfile(response.data.data.id_file)
             }
         }).catch(e =>{
-            console.log(e)
+            showToast('Failed to validated user', 'error')
         })
 
         await axios.get(`${host}/image/${forum.id_file}`,{withCredentials: true}).then(response =>{
@@ -227,7 +230,7 @@ const ContainerContent: React.FC<{forum: forum, setLisForum: any}> = ({forum,set
                 <div className="flex flex-col items-start justify-center mt-1">
                     <p className="text-sm font-bold">{forum.title}</p>
                     <p className="text-xs mb-2">{forum.body}</p>
-                    <div className='max-h-96 overflow-hidden'>
+                    <div className='max-h-96 flex justify-center overflow-hidden'>
                         <img src={urlPhotoForum} alt="" className='object-cover w-full h-full' />
                     </div>
                 </div>
@@ -305,6 +308,7 @@ const Stats: React.FC<any> = ({userName, profPic, post, like}) => {
 
 const Forum = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const {showToast} = useToast()
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('')
     const [userInfo, setUserInfo] = useState<userJwt|null>(null)
@@ -322,21 +326,25 @@ const Forum = () => {
             body: body,
             id_file: id
         },{withCredentials: true}).then(async ()=>{
-            console.log('successfully upload forum')
             window.location.reload()
+            showToast('Successfully post', 'success')
         })
     }
 
     const postFile = async () =>{
 
         if (!title) {
+            showToast('Please fill in the text', 'error')
             return
         }
 
-        if (!body)
+        if (!body){
+            showToast('Please fill the body', 'error')
             return
+        }
 
         if (!file) {
+            showToast('Please select a file to upload', 'error')
             return
         }
 
@@ -349,8 +357,10 @@ const Forum = () => {
             },
             withCredentials: true
         }).then(response=>{
-            console.log('successfully upload file')
+           
             postForm(response.data.id)
+        }).catch(()=>{
+            showToast('Failed to upload file', 'error')
         })
     }
 
@@ -359,7 +369,7 @@ const Forum = () => {
             .then(response => {
                 setPhotoProfile(response.data.url)
             }).catch(e => {
-                console.log(e)
+                showToast('Failed to get photo profile', 'error')
             })
     }
 
@@ -367,7 +377,7 @@ const Forum = () => {
         await axios.get(`${host}/forum`,{withCredentials: true}).then(response =>{
             setListForum(response.data.data)
         }).catch(e =>{
-            console.log(e)
+            showToast('Failed to get forum data', 'error')
         })
     }
 
@@ -378,7 +388,7 @@ const Forum = () => {
             if (response.data.data)
                 setUserData(response.data.data)
         }).catch(e =>{
-            console.log(e)
+            showToast('Failed to validated user', 'error')
         })
     }
 
@@ -387,7 +397,7 @@ const Forum = () => {
         if (fileInput.files && fileInput.files.length > 0) {
             file = fileInput.files[0]
         } else {
-            console.log('No file selected');
+            showToast('Please select a file to upload', 'error')
         }
     }
 
@@ -435,7 +445,7 @@ const Forum = () => {
                 <div className='hidden md:block w-1/5'>
                     <Stats userName={(userInfo)?userInfo.name:''} profPic={(photoProfile)?photoProfile:profPic} post={(userData)?userData.forum.length:0} like={(userData)?userData.like_from_id_creator.length:0}/>
                 </div>
-                <div className=' md:w-3/5 overflow-y-auto scrollbar-thin '>
+                <div className=' w-full md:w-3/5 overflow-y-auto scrollbar-thin '>
                 <div className='mr-5 ml-5'>
                     <div className="flex items-center flex-start border border-[#EF4800] rounded-[20px] p-3 m-4 md:m-4 hover:border-[aqua]">
                         <img src={profPic} alt="" className="h-10 mr-3"/>

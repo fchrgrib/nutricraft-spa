@@ -8,6 +8,7 @@ import { get } from 'http';
 import { profile } from 'console';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import useToast from '../hooks/useToast';
 
 interface userJwt{
     uuid: string
@@ -36,6 +37,7 @@ interface LevelBarProps {
 
 
 const Profile: React.FC = () => {
+    const {showToast} = useToast()
   const [userInfo, setUserInfo] = useState<userJwt|null>(null);
   const [showConfirmationBox, setConfirmationBox] = useState(false)
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -61,7 +63,6 @@ const Profile: React.FC = () => {
     await axios.post(`${host}/user`, {
       uuid: uuid
     }, {withCredentials: true}).then(response=>{
-        console.log(response.data.data)
         const data = {
             id: response.data.data.id,
             name: response.data.data.name,
@@ -84,7 +85,7 @@ const Profile: React.FC = () => {
             .then(response => {
                 setPhoto(response.data.data.url)
             }).catch(e => {
-                console.log(e)
+                showToast('Failed to get photo', 'error')
             })
     }
     
@@ -181,9 +182,9 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
             description: profileData.description,
             password: profileData.password
         }, {withCredentials: true}).then(() => {
-            console.log("success update profile")
+            showToast('Successfully edit profile', 'success')
         }).catch((e:any) => {
-            console.log(e)
+            showToast('Failed to edit profile', 'error')
         })
         
     }
@@ -321,7 +322,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                         </div>
                     </div>
                 </div>
-                <div className='PostContainer flex flex-col items-center justify-center gap-5 p-10 border border-[#EF4800] rounded-xl mb-10 w-[50%]'>
+                {/* <div className='PostContainer flex flex-col items-center justify-center gap-5 p-10 border border-[#EF4800] rounded-xl mb-10 w-[50%]'>
                     <h1 className='text-[30px] font-extrabold'>Post</h1>
                     <div className='flex flex-col items-start gap-10 overflow-y-auto w-[100%] max-h-[200px]'>
                         <PostCard/>
@@ -333,7 +334,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                         <PostCard/>
                         <PostCard/>
                     </div>
-                </div>
+                </div> */}
             </div>    
         </div>
         {showConfirmationBox && (
@@ -343,10 +344,10 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
                     <div className="bg-white rounded-md p-6">
                         {/* ... (confirmation box content) */}
                         <h3 className="text-lg leading-6 font-medium text-gray-900">
-                            Delete Content
+                            Delete account
                         </h3>
                         <p className="text-sm text-gray-500 mt-2">
-                            Are you sure you want to delete this content? All of your data will be permanently removed. This action cannot be undone.
+                            Are you sure you want to delete this account? All of your data will be permanently removed. This action cannot be undone.
                         </p>
                         <div className="mt-4 flex justify-end">
                             <button

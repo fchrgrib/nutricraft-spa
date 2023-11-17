@@ -4,6 +4,7 @@ import {jwtDecode} from 'jwt-decode';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import useToast from '../hooks/useToast';
 
 
 interface userJwt{
@@ -24,6 +25,8 @@ const host = process.env.URL||'http://localhost:8080'
 
 
 const IDPage = () => {
+    const {showToast} = useToast()
+    const [showConfirmation, setShowConfirmation] = useState(false);
     const [userInfo, setUserInfo] = useState<userJwt|null>(null)
     const { id } = useParams<{ id: string }>();
     const [photo , setPhoto] = useState('');
@@ -51,7 +54,7 @@ const IDPage = () => {
                 requestPhoto(response.data.data[0].id_photo)
                 console.log(response.data.data[0])
             }).catch(e => {
-                console.log(e)
+               showToast('Failed to get content', 'error')
             })
     }
 
@@ -95,15 +98,51 @@ const IDPage = () => {
         if (selectedFile) {
           alert('Selected file: ' + selectedFile.name);
           // You can perform additional actions with the selected file
-          console.log(selectedFile);
+          
+        }
+        else {
+            showToast('No photo selected', 'error')
         }
       };
+
+      const handleSave = async () => {
+        if (!contentData.title){
+            return
+        }
+        if (!contentData.highlight){
+            return
+        }
+        if (!contentData.description){
+            return
+        }
+        if (!photo){
+            return
+        }
+        await axios.put(`${host}/content/${id}`,{
+            title: contentData.title,
+            highlight: contentData.highlight,
+            body: contentData.description,
+            photo: photo
+        },{withCredentials: true}).then(()=>{
+            showToast('Content successfully updated', 'success')
+        }).catch((e)=>{
+            showToast('Failed to update content', 'error')
+        })
+    }
 
       const openFileExplorer = () => {
         // Trigger click event on the hidden file input
         const fileInput = document.getElementById('fileInput') as HTMLInputElement;
         fileInput.click();
       };
+
+      const openConfirmation = () => {
+        setShowConfirmation(true);
+      }
+
+        const closeConfirmation = () => {
+            setShowConfirmation(false);
+        }
 
     return (
         <div>
@@ -119,21 +158,53 @@ const IDPage = () => {
         style={{ display: 'none' }}
         onChange={handleFileSelection}
       />
-                    <div className="facttitle w-[50vw]">
+                    <div className="facttitle w-[50vw] border border-[#EF4800]">
                         <input type='text' value={contentData.title} name='title'  className=' w-[100%] text-[2rem] font-bold flex' onChange={handleChange}/>
                     </div>
-                    <div className='facthighlight w-[50vw]'>
+                    <div className='facthighlight w-[50vw] border border-[#EF4800]'>
                         <input type='text' name='highlight' value={contentData.highlight} className='w-[50vw] text-[1.5rem] font-bold' onChange={handleChange}/>
                     </div>
-                    <div className="facttext">
+                    <div className="facttext border border-[#EF4800]">
                         <textarea name="description" id="" cols={70} rows={10} value={contentData.description} className='text-[1.1rem] font-normal' onChange={handleChangedesc}></textarea>
                     </div>
                 </div>
                 <div className='buttoncontainer flex flex-row justify-center items-center mb-10'>
-                    <button className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md">Save</button>
+                    <button className="bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md" onClick={openConfirmation}>Save</button>
                     <button className='bg-[#EF4800] border-none rounded-[30px] w-[120px] h-[30px] text-white text-center text-lg font-bold cursor-pointer mr-8 transition duration-300 hover:bg-[#FF6B00] transform scale-110 shadow-md'>Delete</button>
                 </div>
             </div>
+            {showConfirmation && (
+                <div className="fixed inset-0 flex items-center justify-center backdrop-filter backdrop-blur-md">
+                    <div className="absolute inset-0"></div>
+                    <div className="relative z-30 bg-white rounded-lg p-8 max-w-md w-full">
+                        <div className="bg-white rounded-md p-6">
+                            {/* ... (confirmation box content) */}
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Edit Content
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-2">
+                                Are you sure you want to save this edit?
+                            </p>
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#EF4800] text-base font-medium text-white hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    type="button"
+                                    className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EF4800]"
+                                    onClick={closeConfirmation}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>);
 };
 
