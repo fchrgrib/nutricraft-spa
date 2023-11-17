@@ -53,6 +53,7 @@ const Profile: React.FC = () => {
   const [photo, setPhoto] = useState('');
   const [exp, setExp] = useState(0)
   const [file, setFile] = useState<File|null>(null)
+  const [idFile, setIdFile] = useState<number|null>(null)
 
 
 
@@ -73,6 +74,7 @@ const Profile: React.FC = () => {
             description: response.data.data.description,
             password: response.data.data.password
         }
+        setIdFile(response.data.data.id_file)
         setProfileData(data);
         fetchPhoto(response.data.data.id_file)
     })
@@ -174,7 +176,16 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
 
 
     const handleSave = async () => {
-        console.log(profileData)
+        if (file && idFile) {
+            const formData = new FormData()
+            formData.append('file',file)
+            await axios.put(`${host}/image/${idFile}`,formData,{
+                headers:{
+                    'Content-Type': 'multipart/form-data'
+                },
+                withCredentials: true
+            })
+        }
         await axios.put(`${host}/user/${profileData.id}`,{
             name: profileData.name,
             email: profileData.email,
@@ -184,6 +195,7 @@ const LevelBar: React.FC<LevelBarProps> = ({xp}) => {
             password: profileData.password
         }, {withCredentials: true}).then(() => {
             showToast('Successfully edit profile', 'success')
+            window.location.reload()
         }).catch((e:any) => {
             showToast('Failed to edit profile', 'error')
         })
